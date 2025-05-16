@@ -1,0 +1,4 @@
+Customizations:
+- Different Themes/Color Schemes
+- Custom Layouts
+- Detail Levels (UI/UX, GPT Response)
