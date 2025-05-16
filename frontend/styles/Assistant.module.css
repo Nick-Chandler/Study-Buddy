@@ -1,0 +1,110 @@
+.assistant {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #212121;
+  color: #FFFFFF;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 80%;
+  width: 100%;
+  padding: .5rem;
+  font-size: 15px;
+  border: 1px solid darkgray;
+  overflow-y: auto;
+}
+
+.messages {
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages li {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: .5rem;
+}
+
+.messages li+li {
+  border-top: 1px solid gray;
+}
+
+.user {
+  
+}
+
+.user p {
+  background-color: #303030;
+  padding: .5rem 1rem;
+  border-radius: 20px;
+  width: fit-content;
+}
+.assistant {
+}
+
+.input {
+  background-color: #40414F;
+  display: flex;
+  justify-content: space-between;
+  height: 4rem;
+  border-radius: 20px;
+  padding: .5rem;
+}
+
+.inputField {
+  height: 100%;
+  width: 100%;
+  font-size: 15px;
+  background-color: transparent;
+  color: white;
+  border: none;
+}
+
+.inputField::placeholder {
+  color: #A9A9A9;
+  opacity: .8;
+}
+
+.inputField:focus {
+  outline: none;
+}
+
+.input button {
+  background-color: #40414F;
+  width: 12%;
+  height: 75%;
+  margin: auto .5rem;
+  border-radius: 50%;
+  border: 1px solid white;
+  cursor: pointer;
+}
+
+.input button:hover {
+  background-color: #505050;
+  transition: all .2s ease-in-out;
+}
+
+.upload {
+  color: black;
+  opacity: 1;
+  border: 1 px solid darkgray;
+  color: white;
+}
+
+/* .inputField {
+  width: 100%;
+  border: 1px solid darkgray;
+  background-color: #40414F;
+  color: #FFFFFF;
+  padding: .5rem;
+  font-size: 15px;
+  border-radius: 10px;
+} */
