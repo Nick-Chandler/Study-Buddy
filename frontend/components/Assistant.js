@@ -1,5 +1,4 @@
-import React from 'react';
-import styles from '../styles/Assistant.module.css';
+import Styles from '../styles/Assistant.module.css';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons'
@@ -47,27 +46,27 @@ export default function Assistant() {
   };
 
   return (
-    <section className={styles.assistant}>
+    <section className={Styles.assistant}>
       <h1>AI Assistant</h1>
-      <div className={styles.content}>
-        <ul className={styles.messages}>
+      <div className={Styles.content}>
+        <ul className={Styles.messages}>
           {messages.map((message, index) => (
-            <li key={index} className={styles[message.type]}>
+            <li key={index} className={Styles[message.type]}>
               <p>{message.content}</p> {/* Wrap the message content in a <p> tag */}
             </li>
           ))}
         </ul>
       </div>
-      <form className={styles.input} onSubmit={handleSubmit}>
+      <form id='input' className={Styles.input} onSubmit={handleSubmit}>
         <input
-          className={styles.inputField}
+          className={Styles.inputField}
           type="text"
           placeholder="Need help? Ask me anything..."
           value={input}
           onChange={(e) => setInput(e.target.value)} // Update state on input change
         />
         <button type="submit">
-          <FontAwesomeIcon className={styles.upload} icon={faArrowUpFromBracket} />
+          <FontAwesomeIcon className={Styles.upload} icon={faArrowUpFromBracket} />
         </button>
       </form>
     </section>

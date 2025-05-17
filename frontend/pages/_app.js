@@ -1,8 +1,5 @@
-import '../styles/globals.css';
-import 'katex/dist/katex.min.css'
+import '../styles/Globals.css';
 
-function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component, pageProps }) {
   return <Component {...pageProps} />;
 }
-
-export default MyApp;

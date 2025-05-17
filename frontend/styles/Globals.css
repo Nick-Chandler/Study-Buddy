@@ -46,7 +46,7 @@ main {
   }
   
 
-  main section {
+main section {
     width: 30%;  /* adjust as needed */
     height: 100%;
     flex-grow: 0;
@@ -57,11 +57,6 @@ main {
     display: flex;
     flex-direction: column;
   }
-
-.main-customizations {
-    flex: 1;
-    background-color: #BAF2E9;
-}
 
 
 section h1 {

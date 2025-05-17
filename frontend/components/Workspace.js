@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styles from '../styles/workspace.module.css';
+import { useState } from 'react';
+import Styles from '../styles/Workspace.module.css';
 import FileView from './FileView';
 
 export default function Workspace() {
@@ -16,9 +16,9 @@ export default function Workspace() {
   };
 
   return (
-    <section className={styles.workspace}>
+    <section className={Styles.workspace}>
       <h1>Workspace</h1>
-      <label className={styles.uploadbtn}>
+      <label className={Styles.uploadbtn}>
         Upload
         <input
           type="file"
@@ -27,7 +27,7 @@ export default function Workspace() {
           onChange={handleFileChange} // Handle file selection
         />
       </label>
-      <div className={styles.content}>
+      <div className={Styles.content}>
         <FileView file={fileUrl} /> {/* Pass the file URL as a prop */}
       </div>
     </section>
