@@ -6,24 +6,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from api.models import Conversation, Message
-from api.langchain import init_llm, init_memory, init_conversation
 from .serializers import ConversationSerializer
 from langchain.chat_models import init_chat_model
 from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from api.models import Conversation, Message
+from api.utils import store_message, init_llm, update_conversation
 
 # Function to call the GPT API using LangChain
-def update_conversation(uid,cid,user_input):
-    llm = init_llm()
-    print("LLM INITIALIZED")
-    memory = init_memory()
-    print("MEMORY INITIALIZED")
-
-#def store_message(, role, content):
-    
     
 
 # Django view to handle the assistant API using LangChain
@@ -32,20 +24,18 @@ def assistant(request):
     if request.method == "POST":
         try:
             # Parse the user input from the request body
+            print("Parsing request body...")
             body = json.loads(request.body)
             user_input = body.get("query", "")
             print(f"User input: {user_input}")
 
             # Call the LangChain API with the user input
-            llm = init_llm()
-            response = llm.invoke(user_input)
-            content = response.content
-            store_message(user_input, content)
-
-            print(f"GPT response: {response}")
+            ai_response = update_conversation(1, "a158919f-218b-45cb-a303-a832a3b89716", user_input)
+            
+            print(f"GPT response: {ai_response}")
             #update_conversation(1,1,user_input)
             # Return the GPT response as JSON
-            return JsonResponse({"message": content, "status": "success"})
+            return JsonResponse({"message": ai_response, "status": "success"})
         except Exception as e:
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     else:
@@ -105,22 +95,5 @@ class ConversationListView(APIView):
         return Response(serializer.data)
 
 
-def store_message(user_input, content):
-    user = User.objects.get(username="nickc")
-    print(user)
-    conversation = user.conversations.first()
-    print(conversation.id)
-    Message.objects.create(
-        conversation=conversation,
-        role="human",
-        content=user_input
-    )
 
-    Message.objects.create(
-        conversation=conversation,
-        role="ai",
-        content=content
-    )
-
-    print("Messages stored successfully")
 
