@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Conversation, Message
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -12,3 +13,8 @@ class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
         fields = ['id', 'name', 'conversation_id', 'user', 'messages']  # Include messages in the output
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']  # Excludes sensitive field 'password'

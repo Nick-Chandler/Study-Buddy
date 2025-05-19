@@ -1,12 +1,16 @@
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../components/AuthProvider';
 
 
 export default function register() {
+  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const router = useRouter()
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -26,10 +30,9 @@ export default function register() {
       console.log("GOT RESPONSE")
       console.log(data)
       if (response.ok) {
+        login(data.user); // Assuming the response contains user data
+        router.push('/'); // Redirect to home page after successful registration
         setSuccess(data.message); // Display success message
-        setUsername('');
-        setPassword('');
-        setEmail('');
       } else {
         setError(data.error || 'Registration failed');
       }

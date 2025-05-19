@@ -1,14 +1,27 @@
 import Styles from '../styles/Navbar.module.css'
+import Link from 'next/link'
+import { useAuth } from './AuthProvider'
+import LoggedInAccount from './LoggedInAccount'
 
 export default function Navbar() {
+
+  const { user, login, logout } = useAuth()
+  let loggedIn = (user !== null)
+  console.log(loggedIn)
+
+
+
   return (
     <nav className={Styles.navbar}>
       <div className={Styles.container}>
-        <div className={Styles.placeholder}></div>
+        <div className={Styles.placeholder}>{user?.username || 'Guest'}</div>
         <h1 className={Styles.title}>Study Buddy</h1>
-        <button className={Styles.loginbtn}>
-          <a>Login</a>
-        </button>
+          <div className={Styles.account}>
+            {loggedIn ? (<LoggedInAccount />) :
+              (<Link className={Styles.login} href="/login">
+                <button>Login</button>
+              </Link>)}
+          </div>
       </div>
     </nav>
   )

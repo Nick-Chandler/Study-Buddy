@@ -1,0 +1,9 @@
+.header {
+  color: white;
+}
+
+.register > button {
+  height: 100%;
+  display: flex;
+  cursor: pointer;
+}

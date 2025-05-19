@@ -1,9 +1,15 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { useRouter } from 'next/router'
+import { useAuth } from '../components/AuthProvider';
+import Link from 'next/link'
+import Styles from '../styles/Login.module.css';
 
 export default function login() {
+  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter()
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,7 +24,10 @@ export default function login() {
 
       const data = await response.json();
       if (response.ok) {
-        alert(data.message); // Handle successful login
+        console.log(data)
+        login(data.user)
+        alert(data.message);
+        router.push('/')
       } else {
         setError(data.error || 'Login failed');
       }
@@ -29,7 +38,7 @@ export default function login() {
 
   return (
     <div>
-      <h1>Login</h1>
+      <h1 className={Styles.header}>Login</h1>
       <form onSubmit={handleLogin}>
         <input
           type="text"
@@ -45,6 +54,9 @@ export default function login() {
         />
         <button type="submit">Login</button>
       </form>
+      <Link className={Styles.register} href="/register">
+        <button>Register</button>
+      </Link>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
