@@ -1,0 +1,7 @@
+<ul className={Styles.messages}>
+          {messages.map((message, index) => (
+            <li key={index} className={Styles[message.type]}>
+              <p>{message.content}</p> {/* Wrap the message content in a <p> tag */}
+            </li>
+          ))}
+        </ul>

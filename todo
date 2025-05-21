@@ -1,0 +1,12 @@
+BEFORE RELEASE (v1.0)
+- Retrieve Last Conversation
+- Allow Multiple Conversations per workspace
+- Allow Multiple Workspaces
+  - Create Workspace Model
+  - Create User Files Model
+- Retrieve Current Workspace Data
+- Basic Customizations
+  - Preset Themes
+- Modernize Design
+- Get Reddit Feedback
+

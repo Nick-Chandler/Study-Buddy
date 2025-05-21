@@ -25,8 +25,8 @@ export default function login() {
       const data = await response.json();
       if (response.ok) {
         console.log(data)
-        login(data.user)
-        alert(data.message);
+        login(data)
+        alert(data.message)
         router.push('/')
       } else {
         setError(data.error || 'Login failed');

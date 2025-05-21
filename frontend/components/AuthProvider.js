@@ -5,22 +5,25 @@ import Router, { useRouter } from 'next/router';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(null);
-    const router = useRouter();
+    const [user, setUser] = useState(null)
+    const [conversations, setConversations] = useState([])
+    const [activeConversation, setActiveConversation] = useState(1)
+    const router = useRouter()
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        console.log(typeof storedUser)
+        const storedUser = JSON.parse(localStorage.getItem('user'))
         if (storedUser !== "undefined") {
-          console.log(storedUser)
-          setUser(JSON.parse(storedUser)); // Restore user data from localStorage
+          setUser(storedUser); // Restore user data from localStorage
         }
     }, []);
 
+    useEffect(() => {
+    }, [user]);
+
     const login = (userData) => {
-        setUser(userData);
+        setUser(userData)
+        setConversations(userData.conversations.data); // Set conversations from user data
         localStorage.setItem('user', JSON.stringify(userData)); // Save user data to localStorage
-        console.log(userData);
     };
 
     const logout = () => {
@@ -30,7 +33,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, conversations, activeConversation, setActiveConversation, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -99,12 +99,12 @@
   color: white;
 }
 
-/* .inputField {
-  width: 100%;
-  border: 1px solid darkgray;
-  background-color: #40414F;
-  color: #FFFFFF;
-  padding: .5rem;
-  font-size: 15px;
-  border-radius: 10px;
-} */
+.human {
+  background-color: rgb(78, 78, 78);
+  padding: .5rem 1rem;
+  border-radius: 20px;
+}
+
+.ai {
+
+}

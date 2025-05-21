@@ -1,16 +1,31 @@
-import Styles from '../styles/Assistant.module.css';
-import { useState } from 'react';
+import Styles from '../styles/Assistant.module.css'
+import { useState, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons'
+import { useAuth } from './AuthProvider'
 
 export default function Assistant() {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('')
+  const { user, conversations, activeConversation, setActiveConversation } = useAuth()
+  const [messages, setMessages] = useState([])
+  const cid = conversations[activeConversation-1]?.conversation_id || 1
 
   // Function to fetch the response from the API
+
+  useEffect(() => {
+    console.log("Assistant - Active Conversation on Load",activeConversation)
+    console.log(conversations)
+  }, []);
+
+  useEffect(() => {
+    console.log("Assistant - Active Conversation on Change: ", activeConversation)
+    let currentMessages = conversations[activeConversation-1]?.messages || []
+    setMessages(currentMessages)
+  },[activeConversation])
+
   async function fetchResponse(userInput) {
     try {
-      const response = await fetch('http://127.0.0.1:8000/assistant/', {
+      const response = await fetch(`http://127.0.0.1:8000/assistant/${cid}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,6 +47,8 @@ export default function Assistant() {
     }
   };
 
+
+
   // Handle form submission
   async function handleSubmit(e){
     e.preventDefault();
@@ -51,8 +68,8 @@ export default function Assistant() {
       <div className={Styles.content}>
         <ul className={Styles.messages}>
           {messages.map((message, index) => (
-            <li key={index} className={Styles[message.type]}>
-              <p>{message.content}</p> {/* Wrap the message content in a <p> tag */}
+            <li key={index}>
+              <p className={Styles[message.role]}>{message.content}</p> {/* Wrap the message content in a <p> tag */}
             </li>
           ))}
         </ul>
