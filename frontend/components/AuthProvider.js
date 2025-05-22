@@ -16,6 +16,7 @@ export function AuthProvider({ children }) {
     if (storedUser !== "undefined") {
       setUser(storedUser); // Restore user data from localStorage
     }
+    login(storedUser); // Call login function with stored user data
     console.log("Context - User on Load: ", user);
   }, []);
 
