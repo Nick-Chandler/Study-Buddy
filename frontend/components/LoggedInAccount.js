@@ -17,7 +17,7 @@ export default function LoggedInAccount() {
     <div className={Styles.account}>
       <select onChange={handleConversationChange} className={Styles.conversations}>
         {conversations.map((conversation) => (
-          <option onChange={handleConversationChange} key={conversation.id} value={conversation.id}>
+          <option onChange={handleConversationChange} key={conversation.conversation_id} value={conversation.conversation_id}>
             {conversation.name}
           </option>
         ))}

@@ -164,3 +164,21 @@ def user_id_by_cid(cid):
     return conversation.user.id
   except Conversation.DoesNotExist:
     return None
+
+def get_last_user_conversation(user_id):
+  try:
+    # Fetch the last conversation for the given user ID, ordered by last_accessed
+    conversation = Conversation.objects.filter(user_id=user_id).order_by('-last_accessed').first()
+    print(f"Got last conversation: {conversation}")
+    
+    if conversation:
+      # Serialize the conversation
+      last_accessed_conversation = conversation.conversation_id
+      print(f"Last accessed conversation ID: {last_accessed_conversation}")
+      
+      # Return the serialized data as a JSON response
+      return last_accessed_conversation
+    else:
+      return None
+  except Exception as e:
+    return {"status": "failure", "error": str(e)}

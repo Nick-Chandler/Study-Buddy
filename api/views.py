@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ConversationSerializer, UserSerializer
 from api.models import Conversation
-from api.utils import update_conversation, get_user_conversations, user_id_by_cid
+from api.utils import update_conversation, get_user_conversations, user_id_by_cid, get_last_user_conversation
 
 # Function to call the GPT API using LangChain
     
@@ -52,11 +52,13 @@ def login_view(request):
                 user_instance = User.objects.get(username=username)
                 user_data = UserSerializer(user_instance).data
                 conversation_data = get_user_conversations(user_instance.id)
+                last_conversation = get_last_user_conversation(user_instance.id)
                 print(f"User data: {user_data}")
                 return JsonResponse({"message": "Login successful",
                                       "status": "success",
                                       "user": user_data,
-                                      "conversations": conversation_data}, status=200)
+                                      "conversations": conversation_data,
+                                      "lastConversation": last_conversation}, status=200)
             else:
                 return JsonResponse({"error": "Invalid credentials",
                                       "status": "failure"}, status=401)

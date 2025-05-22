@@ -77,25 +77,34 @@
   outline: none;
 }
 
-.input button {
-  background-color: #40414F;
-  width: 12%;
-  height: 75%;
-  margin: auto .5rem;
-  border-radius: 50%;
-  border: 1px solid white;
-  cursor: pointer;
+.inputButtons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem; /* Add a small gap between the buttons */
 }
 
-.input button:hover {
-  background-color: #505050;
-  transition: all .2s ease-in-out;
+.inputButtons button,
+.inputButtons input
+.inputButtons label {
+  cursor: pointer;
+  flex: 1;
+  border-radius: 50%; /* Make it circular */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid gray; /* Optional: Add a border */
+  background-color: #40414F; /* Optional: Set a background color */
+  color: white; /* Optional: Set text/icon color */
+  padding: .75rem
 }
+/* transition: all .2s ease-in-out; */
+
+
 
 .upload {
   color: black;
   opacity: 1;
-  border: 1 px solid darkgray;
   color: white;
 }
 
