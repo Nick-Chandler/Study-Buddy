@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import assistant, login_view, register_view, ConversationListView, conversation_view
+from api.views import login_view, register_view, ConversationListView, conversation_view, assistant2
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("assistant/<str:cid>", assistant, name="assistant"),
+    # path("assistant/<str:cid>", assistant, name="assistant"),
+    path("assistant2/<int:user_id>/<int:thread_idx>/<str:user_input>", assistant2, name="assistant2"),
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
     path('conversation/<str:cid>/', conversation_view, name='conversation'),

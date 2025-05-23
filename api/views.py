@@ -8,35 +8,44 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ConversationSerializer, UserSerializer
 from api.models import Conversation
-from api.utils import update_conversation, get_user_conversations, user_id_by_cid, get_last_user_conversation
+from api.utils import get_user_conversations, user_id_by_cid, get_last_user_conversation
+from api.assistant import assistant
 
 # Function to call the GPT API using LangChain
     
 
-# Django view to handle the assistant API using LangChain
-@csrf_exempt
-def assistant(request, cid):
-    if request.method == "POST":
-        try:
-            # Parse the user input from the request body
-            print("Parsing request body...")
-            body = json.loads(request.body)
-            user_input = body.get("query", "")
-            print(f"User input: {user_input}")
+# # Django view to handle the assistant API using LangChain
+# @csrf_exempt
+# def assistant(request, cid):
+#     if request.method == "POST":
+#         try:
+#             # Parse the user input from the request body
+#             print("Parsing request body...")
+#             body = json.loads(request.body)
+#             user_input = body.get("query", "")
+#             print(f"User input: {user_input}")
 
-            # Call the LangChain API with the user input
-            user_id = user_id_by_cid(cid)
-            print(f"User ID: {user_id}")
-            ai_response = update_conversation(user_id ,cid, user_input)
+#             # Call the LangChain API with the user input
+#             user_id = user_id_by_cid(cid)
+#             print(f"User ID: {user_id}")
+#             ai_response = update_conversation(user_id ,cid, user_input)
             
-            print(f"GPT response: {ai_response}")
-            #update_conversation(1,1,user_input)
-            # Return the GPT response as JSON
-            return JsonResponse({"message": ai_response, "status": "success"})
-        except Exception as e:
-            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
-    else:
-        return JsonResponse({"error": "Invalid request method"}, status=400)
+#             print(f"GPT response: {ai_response}")
+#             #update_conversation(1,1,user_input)
+#             # Return the GPT response as JSON
+#             return JsonResponse({"message": ai_response, "status": "success"})
+#         except Exception as e:
+#             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+#     else:
+#         return JsonResponse({"error": "Invalid request method"}, status=400)
+    
+def assistant2(request, user_id, thread_idx, user_input):
+    try:
+        gpt_response = assistant(user_id, thread_idx, user_input)
+        
+        return JsonResponse({"message": gpt_response, "status": "success"}, status=200)
+    except Exception as e:
+        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
 
 @csrf_exempt
 def login_view(request):
