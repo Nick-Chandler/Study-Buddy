@@ -35,6 +35,7 @@ class OpenAIAssistant(models.Model):
   
 class OpenAIThread(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='openai_threads')
+  name = models.CharField(max_length=255)
   thread_id = models.CharField(max_length=100, unique=True)
   created_at = models.DateTimeField(auto_now_add=True)
   last_accessed = models.DateTimeField(default=timezone.now)

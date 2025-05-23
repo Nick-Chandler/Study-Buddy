@@ -5,7 +5,6 @@ import Navbar from '../components/Navbar';
 
 export default function index() {
 
-  console.log("Index Rendered")
 
   return (
     <div className='homepage'>

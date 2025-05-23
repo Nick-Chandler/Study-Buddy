@@ -146,7 +146,7 @@ def build_runnable(chain):
 #   return response
 
 
-def get_user_conversations(user_id):
+def get_user_threads(user_id):
   try:
     # Fetch all conversations for the given user ID
     conversations = Conversation.objects.filter(user_id=user_id)
@@ -207,7 +207,7 @@ def get_nth_thread(user_id: int, n: int):
 
   return threads[n].thread_id
 
-def create_new_thread_for_user(user_id: int):
+def create_new_thread_for_user(user_id: int, name: str = "Unnamed Thread"):
   try:
     user = User.objects.get(id=user_id)
   except User.DoesNotExist:
@@ -217,6 +217,7 @@ def create_new_thread_for_user(user_id: int):
 
   new_thread = OpenAIThread.objects.create(
     user=user,
+    name=name,
     thread_id=thread.id,
     created_at=timezone.now(),
     last_accessed=timezone.now()
@@ -246,3 +247,15 @@ def get_latest_gpt_response(run, thread_id):
       return msg.content[0].text.value
 
   return None  # In case no assistant message is found
+
+def get_user_thread_list(user_id: int):
+  try:
+    user = User.objects.get(id=user_id)
+  except ObjectDoesNotExist:
+    return []
+
+  threads = OpenAIThread.objects.filter(user=user).order_by('-created_at')
+  return [
+    {"name": thread.name, "thread_id": thread.thread_id}
+    for thread in threads
+  ]

@@ -5,10 +5,11 @@ import Styles from '../styles/Navbar.module.css'
 
 export default function LoggedInAccount() {
 
-  const { user, conversations, activeConversation, setActiveConversation, login, logout } = useAuth()
+  const { user, conversations, activeConversation, userConversations, setActiveConversation, login, logout, getUserConversations } = useAuth()
   
   function handleConversationChange(e) {
-    console.log("Conversation changed: ", e.target.value)
+    console.log("Conversation Target Changed", e.target)
+    console.log("Conversation Changed", e.target.value)
     setActiveConversation(e.target.value)
   }
 
@@ -16,8 +17,8 @@ export default function LoggedInAccount() {
   return (
     <div className={Styles.account}>
       <select onChange={handleConversationChange} className={Styles.conversations}>
-        {conversations.map((conversation) => (
-          <option onChange={handleConversationChange} key={conversation.conversation_id} value={conversation.conversation_id}>
+        {userConversations.map((conversation, i) => (
+          <option onChange={handleConversationChange} key={conversation.conversation_id} value={i}>
             {conversation.name}
           </option>
         ))}

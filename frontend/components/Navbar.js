@@ -7,7 +7,8 @@ import { useEffect } from 'react'
 export default function Navbar() {
 
   const { user, login, logout } = useAuth()
-  let loggedIn = (user !== null)
+  let loggedIn = (user !== null && user !== undefined && user.user !== null && user.user !== undefined)
+  console.log("Navbar - User: ", user)
 
   useEffect(() => {
   }, [user]);
@@ -16,7 +17,7 @@ export default function Navbar() {
   return (
     <nav className={Styles.navbar}>
       <div className={Styles.container}>
-        <div className={Styles.placeholder}>{user?.user.username || 'Guest'}</div>
+        <div className={Styles.placeholder}>{user?.user?.username || 'Guest'}</div>
         <h1 className={Styles.title}>Study Buddy</h1>
           <div className={Styles.account}>
             {loggedIn ? (<LoggedInAccount />) :

@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ConversationSerializer, UserSerializer
 from api.models import Conversation
-from api.utils import get_user_conversations, user_id_by_cid, get_last_user_conversation
+from api import utils
 from api.assistant import assistant
 
 # Function to call the GPT API using LangChain
@@ -42,10 +42,26 @@ from api.assistant import assistant
 def assistant2(request, user_id, thread_idx, user_input):
     try:
         gpt_response = assistant(user_id, thread_idx, user_input)
-        
-        return JsonResponse({"message": gpt_response, "status": "success"}, status=200)
+
+        return JsonResponse({"message": gpt_response,
+                              "status": "success"}, status=200)
     except Exception as e:
         return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+    
+def get_user_thread_list(request, user_id):
+    user_threads = utils.get_user_thread_list(user_id)
+    print(f"User threads: ", user_threads)
+    return JsonResponse(user_threads, safe=False)
+
+class ConversationListView(APIView):
+
+    def get(self, request):
+        # Retrieve all conversations
+        conversations = Conversation.objects.all()
+        serializer = ConversationSerializer(conversations, many=True)
+        return Response(serializer.data)
+
+
 
 @csrf_exempt
 def login_view(request):
@@ -60,13 +76,13 @@ def login_view(request):
                 login(request, user)
                 user_instance = User.objects.get(username=username)
                 user_data = UserSerializer(user_instance).data
-                conversation_data = get_user_conversations(user_instance.id)
-                last_conversation = get_last_user_conversation(user_instance.id)
+                thread_names = utils.get_user_thread_list(user_instance.id)
+                last_conversation = utils.get_last_user_conversation(user_instance.id)
                 print(f"User data: {user_data}")
                 return JsonResponse({"message": "Login successful",
                                       "status": "success",
                                       "user": user_data,
-                                      "conversations": conversation_data,
+                                      "conversations": thread_names,
                                       "lastConversation": last_conversation}, status=200)
             else:
                 return JsonResponse({"error": "Invalid credentials",

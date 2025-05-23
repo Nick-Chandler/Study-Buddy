@@ -10,30 +10,30 @@ import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons'
 export default function AssistantInput(props) {
 
   const [input, setInput] = useState('')
-  const { user, conversations, activeConversation, setActiveConversation, activeMessages, addMessage } = useAuth()
-  const fileInputRef = useRef(null)
+  // const { user, conversations, activeConversation, setActiveConversation, activeMessages, addMessage } = useAuth()
+  // const fileInputRef = useRef(null)
 
-  async function fetchResponse(userInput) {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/assistant/${activeConversation}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: userInput }),
-      });
+  // async function fetchResponse(userInput) {
+  //   try {
+  //     const response = await fetch(`http://127.0.0.1:8000/assistant/${activeConversation}`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ query: userInput }),
+  //     });
 
-      if (response.ok) {
-        const data = await response.json();
-        let msg = { content: data.message, type: 'assistant' }
-        addMessage(msg) // Add assistant's response to the messages
-      } else {
-        console.error('Error:', response.statusText);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       let msg = { content: data.message, type: 'assistant' }
+  //       addMessage(msg) // Add assistant's response to the messages
+  //     } else {
+  //       console.error('Error:', response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //   }
+  // };
 
   // Handle form submission
   async function handleSubmit(e){

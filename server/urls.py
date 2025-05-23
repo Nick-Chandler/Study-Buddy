@@ -16,14 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import login_view, register_view, ConversationListView, conversation_view, assistant2
+from api import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path("assistant/<str:cid>", assistant, name="assistant"),
-    path("assistant2/<int:user_id>/<int:thread_idx>/<str:user_input>", assistant2, name="assistant2"),
-    path('login/', login_view, name='login'),
-    path('register/', register_view, name='register'),
-    path('conversation/<str:cid>/', conversation_view, name='conversation'),
-    path('conversationlist/', ConversationListView.as_view(), name='conversation-list'),
+    path("assistant2/<int:user_id>/<int:thread_idx>/<str:user_input>", views.assistant2, name="assistant2"),
+    path("get_user_thread_list/<int:user_id>", views.get_user_thread_list, name="get_user_thread_list"),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('conversation/<str:cid>/', views.conversation_view, name='conversation'),
+    path('conversationlist/', views.ConversationListView.as_view(), name='conversation-list'),
 ]

@@ -5,50 +5,37 @@ import Router, { useRouter } from "next/router";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [conversations, setConversations] = useState([]);
   const [activeConversation, setActiveConversation] = useState();
   const [activeMessages, setActiveMessages] = useState([]);
+  const [userConversations, setUserConversations] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser !== "undefined") {
-      setUser(storedUser); // Restore user data from localStorage
-    }
-    login(storedUser); // Call login function with stored user data
-    console.log("Context - User on Load: ", user);
+    console.log("Context - Rendered")
   }, []);
 
   useEffect(() => {
-    console.log("Logged in user: ", user);
-    if (user) {
-      setActiveConversation(user.lastConversation);
-      console.log("Conversations:", conversations);
-    }
+    console.log("Context - User on Load", user);
+    if (!user || user === null || user === undefined || user =={})
+      return
+    console.log("Context - Setting Conversations for User", user);
+    getUserConversations(user?.user?.id || []);
   }, [user]);
 
   useEffect(() => {
-    console.log("Context - Active Conversation on Change: ",activeConversation);
-    let newMessages = [];
-    for (const c of conversations) {
-      if (c.conversation_id === activeConversation) {
-          newMessages = c.messages; // Return the messages array
-          console.log("Context - Active Messages: ", c.messages);
-      }
-    }; 
-    setActiveMessages(newMessages);
+      // Stopped here - get user conversation messages
     }, [activeConversation]);
 
   function addMessage(msg) {
-    setActiveMessages((messages) => [...messages, msg]);
+    
   }
 
   const login = (userData) => {
-    console.log("Logging in user: ", userData);
     setUser(userData);
-    setConversations(userData.conversations.data); // Set conversations from user data
     localStorage.setItem("user", JSON.stringify(userData)); // Save user data to localStorage
+    console.log("Context - User on Load", userData);
   };
 
   const logout = () => {
@@ -57,6 +44,32 @@ export function AuthProvider({ children }) {
     router.reload();
   };
 
+  async function getUserConversations(userId) {
+    if (!userId || userId.length === 0 || userId === null || userId === undefined) 
+      return
+    try {
+      let url = `http://localhost:8000/get_user_thread_list/${userId}`;
+      console.log("URL:", url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const threadArray = await response.json();  // <- this is your JSON array
+      console.log("User Conversations:", threadArray);
+      console.log(typeof threadArray);
+      const objectArray = threadArray.map(obj => ({
+        name: obj.name,
+        thread_id: obj.thread_id,
+      }));
+      setUserConversations(objectArray);
+    } catch (error) {
+      console.error("Failed to fetch user conversations:", error);
+      return setUserConversations([]); // Set to empty array on error
+    }
+  }
+
+
+
   return (
     <AuthContext.Provider
       value={{
@@ -64,10 +77,12 @@ export function AuthProvider({ children }) {
         conversations,
         activeConversation,
         activeMessages,
+        userConversations,
         setActiveConversation,
         addMessage,
         login,
         logout,
+        getUserConversations,
       }}
     >
       {children}
