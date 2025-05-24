@@ -6,12 +6,15 @@ import { useEffect } from 'react'
 
 export default function Navbar() {
 
-  const { user, login, logout } = useAuth()
+  const { user, login, logout, activeMessages } = useAuth()
   let loggedIn = (user !== null && user !== undefined && user.user !== null && user.user !== undefined)
   console.log("Navbar - User: ", user)
+  console.log("Navbar - Active Messages: ", activeMessages)
+
 
   useEffect(() => {
-  }, [user]);
+    console.log("Navbar - User: ", user)
+  }, []);
 
 
   return (

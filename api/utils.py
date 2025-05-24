@@ -4,7 +4,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from api.models import User, Conversation, Message
+from api.models import User, Conversation, Message, OpenAIAssistant
 from .serializers import ConversationSerializer
 from api.models import OpenAIThread, User
 from django.core.exceptions import ObjectDoesNotExist
@@ -12,6 +12,8 @@ from django.utils import timezone
 import openai, time
 
 assistant_id = "asst_ceOd9c6y55I9vToqnkJKUnj7"
+client = openai.OpenAI()
+
 
 class History:
 
@@ -27,8 +29,6 @@ class History:
   def __str__(self):
     return f"History({self.messages})"
 
-# def init_llm(model="gpt-4o-mini", model_provider="openai"):
-#   return ChatOpenAI(model_name="gpt-4o-mini")
 
 def init_memory(cid):
   print("Retrieving conversation...")
@@ -109,42 +109,6 @@ def build_runnable(chain):
     raise
   return chain_with_memory
 
-# def update_conversation(uid,cid,user_input):
-#   # load history
-#   print("Loading history...")
-#   history = init_memory(cid)
-#   # prompt template
-#   print("Forming prompt...")
-#   prompt = form_prompt(user_input, history)
-#   # build llm
-#   print("Initializing LLM...")
-#   llm = init_llm()
-#   # build chain
-#   print("Building chain...")
-#   chain = prompt | llm
-#   # infuse memory
-#   print("Infusing memory...")
-#   runnable = build_runnable(chain)
-#   # run chain
-#   print("Running chain...")
-#   try:
-#     print(f"User input: {user_input}")
-#     print(f"cid: {cid}")
-#     response = runnable.invoke(
-#       {"user_input": user_input},
-#       config={"configurable": {"session_id": cid}}
-#     ).content
-#   except Exception as e:
-#     print(f"Error running chain: {e}")
-#     raise
-#   # store messages
-#   print("Storing messages...")
-#   print(f"User input: {user_input}")
-#   print(f"Response: {response}")
-#   print(f"cid: {cid}")
-#   store_message(user_input, response, cid)
-#   return response
-
 
 def get_user_threads(user_id):
   try:
@@ -190,12 +154,12 @@ def get_last_user_conversation(user_id):
     return {"status": "failure", "error": str(e)}
   
 def get_or_create_user_thread(user_id,thread_idx):
-  thead_id = get_nth_thread(user_id, thread_idx)
+  thread_id = get_nth_thread_id(user_id, thread_idx)
   if thread_id is None:
     thread_id = create_new_thread_for_user(user_id)
   
 
-def get_nth_thread(user_id: int, n: int):
+def get_nth_thread_id(user_id: int, n: int):
   try:
     user = User.objects.get(id=user_id)
   except User.DoesNotExist:
@@ -259,3 +223,42 @@ def get_user_thread_list(user_id: int):
     {"name": thread.name, "thread_id": thread.thread_id}
     for thread in threads
   ]
+
+def thread_idx_to_thread_id(user_id: int, thread_idx: int):
+  try:
+    user = User.objects.get(id=user_id)
+  except ObjectDoesNotExist:
+    return None
+
+  threads = OpenAIThread.objects.filter(user=user).order_by('-created_at')
+  if thread_idx < 0 or thread_idx >= threads.count():
+    return None
+
+  return threads[thread_idx].thread_id
+
+def fetch_thread_messages(thread_id: str):
+  msgs = []
+  cursor = None
+
+  while True:
+    page = client.beta.threads.messages.list(
+      thread_id=thread_id,
+      limit=100,
+      before=cursor
+    )
+
+    for m in page.data:
+      for c in m.content:
+        if c.type == 'text':
+          msgs.append({
+            'id': m.id,
+            'role': m.role,
+            'text': c.text.value
+          })
+
+    if not page.has_more:
+      break
+    cursor = page.last_id
+  print(f"Messages: {msgs}")
+
+  return msgs

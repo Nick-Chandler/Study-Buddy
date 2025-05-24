@@ -10,51 +10,40 @@ import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons'
 export default function AssistantInput(props) {
 
   const [input, setInput] = useState('')
-  // const { user, conversations, activeConversation, setActiveConversation, activeMessages, addMessage } = useAuth()
-  // const fileInputRef = useRef(null)
+  const {user, activeThread, activeMessages, setActiveMessages, addMessage, getAiResponse} = useAuth()
+  const ref1 = useRef(null) // Create a reference for the input field
 
-  // async function fetchResponse(userInput) {
-  //   try {
-  //     const response = await fetch(`http://127.0.0.1:8000/assistant/${activeConversation}`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ query: userInput }),
-  //     });
+// Function to send a message to the assistant
+  async function talkToAssistant(e) {
+    e.preventDefault() // Prevent default form submission
+    // call api to get response
+    let userId = user?.user?.id || null
+    console.log("AssistantInput - User ID: ", userId)
+    console.log("AssistantInput - Active Thread: ", activeThread)
+    if (!userId) return
+    // Add Human Message to active Messages
+    console.log("Ref 1 Value: ",ref1.current.value)
+    addMessage(ref1.current.value, "human")
+    ref1.current.value = "" // Clear input field
+    let response = await getAiResponse(userId, activeThread, input)
+    console.log("AssistantInput - Response: ", response)
+    // Add Assistant Message to active Messages
+    addMessage(response, "ai") // Add Assistant Message to active Messages
+  }
 
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       let msg = { content: data.message, type: 'assistant' }
-  //       addMessage(msg) // Add assistant's response to the messages
-  //     } else {
-  //       console.error('Error:', response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error:', error);
-  //   }
-  // };
 
-  // Handle form submission
-  async function handleSubmit(e){
-    e.preventDefault();
-    if (input.trim() === '') return;
-    let msg = { content: input, type: 'user' }
-    addMessage(msg) // Add user's message to the messages
-    fetchResponse(input); // Call the function to fetch the response from the API
-    setInput('');
-  };
 
   return (
-    <form id="input" className={Styles.input} onSubmit={handleSubmit}>
+    <form id="input" className={Styles.input} onSubmit={talkToAssistant}>
       <input
         className={Styles.inputField}
         type="text"
         placeholder="Need help? Ask me anything..."
         value={input}
+        ref={ref1}
         onChange={(e) => setInput(e.target.value)} // Update state on input change
       />
-      <div className={Styles.inputButtons}>
+      {/* <div className={Styles.inputButtons}>
         <input
           type="file"
           id="file"
@@ -74,7 +63,7 @@ export default function AssistantInput(props) {
             icon={faArrowUpFromBracket}
           />
         </button>
-      </div>
+      </div> */}
     </form>
   );
 }

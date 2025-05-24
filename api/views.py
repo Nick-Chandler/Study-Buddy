@@ -8,50 +8,50 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ConversationSerializer, UserSerializer
 from api.models import Conversation
-from api import utils
-from api.assistant import assistant
+from api import gpt_assistant, utils
 
-# Function to call the GPT API using LangChain
     
+@csrf_exempt
+def assistant(request, user_id, thread_idx):
 
-# # Django view to handle the assistant API using LangChain
-# @csrf_exempt
-# def assistant(request, cid):
-#     if request.method == "POST":
-#         try:
-#             # Parse the user input from the request body
-#             print("Parsing request body...")
-#             body = json.loads(request.body)
-#             user_input = body.get("query", "")
-#             print(f"User input: {user_input}")
+    if request.method == 'POST':
+        print(f"Assistant User ID: {user_id}, Thread Index: {thread_idx}")
+        print("Decoding request body...")
+        body_unicode = request.body.decode('utf-8')
+        print(f"Request body: {body_unicode}")
+        print("Convering to JSON...")
+        body_data = json.loads(body_unicode)
+        print(f"Body data: {body_data}")
+        print("Retrieving user input...")
+        user_input = body_data.get('user_input', '')
+        print(f"User input: {user_input}")
 
-#             # Call the LangChain API with the user input
-#             user_id = user_id_by_cid(cid)
-#             print(f"User ID: {user_id}")
-#             ai_response = update_conversation(user_id ,cid, user_input)
-            
-#             print(f"GPT response: {ai_response}")
-#             #update_conversation(1,1,user_input)
-#             # Return the GPT response as JSON
-#             return JsonResponse({"message": ai_response, "status": "success"})
-#         except Exception as e:
-#             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
-#     else:
-#         return JsonResponse({"error": "Invalid request method"}, status=400)
-    
-def assistant2(request, user_id, thread_idx, user_input):
-    try:
-        gpt_response = assistant(user_id, thread_idx, user_input)
+        try:
+            print("Calling assistant function...")
+            gpt_response = gpt_assistant.run_assistant(user_id, thread_idx, user_input)
+            print(f"GPT Response: {gpt_response}")
+            print(f"Type of GPT Response: {type(gpt_response)}")
 
-        return JsonResponse({"message": gpt_response,
-                              "status": "success"}, status=200)
-    except Exception as e:
-        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+            return JsonResponse({"message": gpt_response,
+                                "status": "success"}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     
 def get_user_thread_list(request, user_id):
     user_threads = utils.get_user_thread_list(user_id)
     print(f"User threads: ", user_threads)
     return JsonResponse(user_threads, safe=False)
+
+def get_user_thread_messages(request, user_id, thread_idx):
+    print(f"Fetching messages for user {user_id} thread index {thread_idx}")
+    thread_id = utils.get_nth_thread_id(user_id, thread_idx)
+    print(f"Thread ID: {thread_id}")
+    if thread_id is None:
+        print(f"Thread not found for user {user_id} at index {thread_idx}")
+        return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
+    messages = utils.fetch_thread_messages(thread_id)[::-1]
+    print(f"Messages: {messages}")
+    return JsonResponse(messages, safe=False)
 
 class ConversationListView(APIView):
 
