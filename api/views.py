@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import ConversationSerializer, UserSerializer
-from api.models import Conversation
+from .serializers import ConversationSerializer, UserSerializer, OpenAIThreadSerializer
+from api.models import Conversation, OpenAIThread
 from api import gpt_assistant, utils
 
     
@@ -38,8 +38,9 @@ def assistant(request, user_id, thread_idx):
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     
 def get_user_thread_list(request, user_id):
-    user_threads = utils.get_user_thread_list(user_id)
+    user_threads = utils.get_user_thread_list(user_id, sort_by_last_accessed=False)
     print(f"User threads: ", user_threads)
+
     return JsonResponse(user_threads, safe=False)
 
 def get_user_thread_messages(request, user_id, thread_idx):
@@ -49,8 +50,8 @@ def get_user_thread_messages(request, user_id, thread_idx):
     if thread_id is None:
         print(f"Thread not found for user {user_id} at index {thread_idx}")
         return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
-    messages = utils.fetch_thread_messages(thread_id)[::-1]
-    print(f"Messages: {messages}")
+    print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
+    messages = utils.fetch_thread_messages(thread_id)
     return JsonResponse(messages, safe=False)
 
 class ConversationListView(APIView):
@@ -150,6 +151,14 @@ class ConversationListView(APIView):
         # Retrieve all conversations
         conversations = Conversation.objects.all()
         serializer = ConversationSerializer(conversations, many=True)
+        return Response(serializer.data)
+    
+class OpenAIThreadListView(APIView):
+
+    def get(self, request):
+        # Retrieve all conversations
+        Threads = OpenAIThread.objects.all()
+        serializer = OpenAIThreadSerializer(Threads, many=True)
         return Response(serializer.data)
 
 

@@ -1,5 +1,5 @@
 import Styles from '../styles/Assistant.module.css'
-import { useState, useEffect, act, use } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthProvider'
 import AssistantInput from './AssistantInput'
 
@@ -7,7 +7,7 @@ import AssistantInput from './AssistantInput'
 
 export default function Assistant() {
   const { user, conversations, activeThread, activeMessages, setActiveThread, setActiveMessages } = useAuth()
-  console.log("Assistant Rendered");
+  const assistantRef = useRef(null);
   useEffect(() => {
     console.log("Assistant - Loaded")
     console.log("Assistant - Active Messages: " ,activeMessages)
@@ -24,7 +24,11 @@ export default function Assistant() {
   useEffect(() => {
     console.log("Active Messages Changed: ", activeMessages)
     displayMessages();
+    // assistantRef?.current && scrollToBottom(assistantRef);
   }, [activeMessages]);
+
+  useEffect(() => {
+  }, [activeThread]);
 
   async function getUserThreadMessages(userId, activeThread) {
     console.log("Get Thread Messages - Fetching User Thread Messages");
@@ -56,10 +60,11 @@ export default function Assistant() {
   }
 
   function displayMessages() {
+    let reversed = [...activeMessages].reverse();
     const ulElement = document.querySelector(`.${Styles.messages}`);
     ulElement.innerHTML = ""; // Clear existing messages
-    console.log(`Assistant - Active Messages: ${activeMessages}`)
-    activeMessages.forEach((message) => {
+    console.log(`Assistant - Active Messages: ${reversed}`)
+    reversed.forEach((message) => {
       console.log("Assistant - Message: ", message);
       const li = document.createElement("li");
       const p = document.createElement("p");
@@ -69,19 +74,25 @@ export default function Assistant() {
       ulElement.appendChild(li);
     });
   }
+  
+  function scrollToBottom() {
+    console.log("Ref: ",assistantRef.current)
+    assistantRef.current.scrollTop = assistantRef.current.scrollHeight;
+  }
+
 
   useEffect(() => {
     if (activeThread === null || activeThread === undefined || activeThread === "") 
       return
     console.log("Assistant - Active Thread Changed: ", activeThread);
-    console.log("Assistant - User ID: ", user?.user?.id || "No User ID");
+    console.log("Assistant - Calling getUserThreadMessages");
     getUserThreadMessages(user?.user?.id || [], activeThread)
     }, [activeThread]);
   
   return (
     <section className={Styles.assistant}>
       <h1>AI Assistant</h1>
-      <div className={Styles.content}>
+      <div className={Styles.content} ref={assistantRef} >
         <ul className={Styles.messages}></ul>
       </div>
       <AssistantInput />

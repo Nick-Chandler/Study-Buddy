@@ -12,23 +12,14 @@ class Command(BaseCommand):
     thread_id = kwargs['thread_id']
 
     try:
-      all_messages = []
-      messages = openai.beta.threads.messages.list(thread_id=thread_id)
-
-      all_messages.extend(messages.data)
-
-      if hasattr(messages, 'auto_paging_iter'):
-        for message in messages.auto_paging_iter():
-          all_messages.append(message)
-
-      with open('messages.csv', mode='w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(['Content'])
-        
-        for message in all_messages:
-          writer.writerow([message.content])
-
-      print('Messages written to messages.csv')
-
+      response = openai.beta.threads.messages.list(thread_id=thread_id)
+      for i,msg in enumerate(response.data):
+        print(f"Message {i+1}:")
+        print("----------------------------------")
+        print(f"Message Id: {msg.id}")
+        print(f"Message Role: {msg.role}")
+        print(f"Message Content: {msg.content}")
     except Exception as e:
       print(f"Error retrieving messages: {e}")
+      return
+      

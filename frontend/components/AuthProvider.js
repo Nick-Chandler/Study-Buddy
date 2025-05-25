@@ -1,6 +1,7 @@
 // context/AuthContext.js
 import { createContext, useState, useContext, useEffect } from "react";
 import Router, { useRouter } from "next/router";
+import { useRef } from "react";
 
 const AuthContext = createContext();
 
@@ -121,12 +122,13 @@ export function AuthProvider({ children }) {
     }
   }
   function addMessage(msg, role) {
+    console.log("Context - Adding Message: ", msg);
     let temp_msg = {
       id: generateUniqueId(),
       role: role,
       text: msg,
     }
-    setActiveMessages((prevMessages) => [...prevMessages, temp_msg]);
+    setActiveMessages((prevMessages) => [temp_msg, ...prevMessages]);
   }
   
   async function getAiResponse(user_id, thread_idx, user_input) {
@@ -146,7 +148,6 @@ export function AuthProvider({ children }) {
     return data.message
 }
 
-  console.log("AuthProvider Rendered 2");
 
   return (
     <AuthContext.Provider

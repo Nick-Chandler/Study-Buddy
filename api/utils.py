@@ -206,19 +206,21 @@ def get_latest_gpt_response(run, thread_id):
   messages = openai.beta.threads.messages.list(thread_id=thread_id)
 
   # Return the latest assistant message
-  for msg in reversed(messages.data):
+  for msg in messages.data:
     if msg.role == "assistant":
       return msg.content[0].text.value
 
   return None  # In case no assistant message is found
 
-def get_user_thread_list(user_id: int):
+def get_user_thread_list(user_id: int,sort_by_last_accessed:bool=False):
   try:
     user = User.objects.get(id=user_id)
   except ObjectDoesNotExist:
     return []
 
   threads = OpenAIThread.objects.filter(user=user).order_by('-created_at')
+  if sort_by_last_accessed:
+    threads = threads.order_by('-last_accessed')
   return [
     {"name": thread.name, "thread_id": thread.thread_id}
     for thread in threads
@@ -237,28 +239,32 @@ def thread_idx_to_thread_id(user_id: int, thread_idx: int):
   return threads[thread_idx].thread_id
 
 def fetch_thread_messages(thread_id: str):
+  print(f"Fetching messages for thread ID: {thread_id}")
   msgs = []
-  cursor = None
 
-  while True:
-    page = client.beta.threads.messages.list(
-      thread_id=thread_id,
-      limit=100,
-      before=cursor
-    )
-
+  page = client.beta.threads.messages.list(
+    thread_id=thread_id,
+    limit=100,
+  )
+  print(f"Got page Response")
+  while page.data:
     for m in page.data:
-      for c in m.content:
-        if c.type == 'text':
-          msgs.append({
-            'id': m.id,
-            'role': m.role,
-            'text': c.text.value
-          })
+      if m.role == "user":
+        msgs.append({
+          'id': m.id,
+          'role': "human",
+          'text': m.content[0].text.value
+        })
+      elif m.role == "assistant":
+        msgs.append({
+          'id': m.id,
+          'role': "ai",
+          'text': m.content[0].text.value
+        })
 
-    if not page.has_more:
+    if not page.has_next_page:
       break
-    cursor = page.last_id
-  print(f"Messages: {msgs}")
+    else :
+      page = page.get_next_page()
 
   return msgs

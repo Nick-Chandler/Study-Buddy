@@ -11,7 +11,6 @@ export default function AssistantInput(props) {
 
   const [input, setInput] = useState('')
   const {user, activeThread, activeMessages, setActiveMessages, addMessage, getAiResponse} = useAuth()
-  const ref1 = useRef(null) // Create a reference for the input field
 
 // Function to send a message to the assistant
   async function talkToAssistant(e) {
@@ -22,11 +21,10 @@ export default function AssistantInput(props) {
     console.log("AssistantInput - Active Thread: ", activeThread)
     if (!userId) return
     // Add Human Message to active Messages
-    console.log("Ref 1 Value: ",ref1.current.value)
-    addMessage(ref1.current.value, "human")
-    ref1.current.value = "" // Clear input field
-    let response = await getAiResponse(userId, activeThread, input)
-    console.log("AssistantInput - Response: ", response)
+    let temp_input = input
+    addMessage(temp_input, "human")
+    setInput('') // Clear input field
+    let response = await getAiResponse(userId, activeThread, temp_input)
     // Add Assistant Message to active Messages
     addMessage(response, "ai") // Add Assistant Message to active Messages
   }
@@ -40,7 +38,7 @@ export default function AssistantInput(props) {
         type="text"
         placeholder="Need help? Ask me anything..."
         value={input}
-        ref={ref1}
+        name="assistantInput"
         onChange={(e) => setInput(e.target.value)} // Update state on input change
       />
       {/* <div className={Styles.inputButtons}>
