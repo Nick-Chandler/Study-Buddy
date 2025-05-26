@@ -268,3 +268,30 @@ def fetch_thread_messages(thread_id: str):
       page = page.get_next_page()
 
   return msgs
+
+def rename_thread(user_id: int, thread_id: str, new_name: str):
+  try:
+    thread = OpenAIThread.objects.get(user_id=user_id, thread_id=thread_id)
+    thread.name = new_name
+    thread.save()
+    print(f"Thread {thread_id} renamed to {new_name}")
+  except OpenAIThread.DoesNotExist:
+    print(f"Thread {thread_id} not found for user {user_id}")
+    raise ValueError("Thread not found")
+  except Exception as e:
+    print(f"Error renaming thread: {e}")
+    raise
+
+def delete_thread(user_id: int, thread_id: str):
+  try:
+    thread = OpenAIThread.objects.get(user_id=user_id, thread_id=thread_id)
+    thread_name = thread.name
+    thread.delete()
+    print(f"Thread - {thread_name}, id - {thread_id} deleted for user {user_id}")
+    return thread_name
+  except OpenAIThread.DoesNotExist:
+    print(f"Thread {thread_id} not found for user {user_id}")
+    raise ValueError("Thread not found")
+  except Exception as e:
+    print(f"Error deleting thread: {e}")
+    raise

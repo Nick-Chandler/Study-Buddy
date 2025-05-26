@@ -2,6 +2,8 @@ import React, { act, useEffect } from "react";
 import Styles from '../styles/Navbar.module.css'
 import { useAuth } from './AuthProvider'
 
+
+
 export default function ThreadSelect() {
 
   const {activeThread, threads, setActiveThread} = useAuth()

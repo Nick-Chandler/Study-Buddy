@@ -63,3 +63,6 @@ main section {
 section h1 {
     margin: 0 auto;
 }
+button {
+    cursor: pointer;
+}

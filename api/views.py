@@ -68,6 +68,32 @@ def create_thread_for_user(request, user_id, name="Untitled Thread"):
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
+@csrf_exempt
+def rename_thread(request, user_id, thread_id, new_name):
+    if request.method == 'POST':
+        try:
+            print(f"Renaming thread {thread_id} for user {user_id} to {new_name}")
+            utils.rename_thread(user_id, thread_id, new_name)
+            return JsonResponse({"message": "Thread renamed successfully",
+                                  "status": "success",
+                                  "newThreadName" : new_name}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
+def delete_thread(request, user_id, thread_id):
+    if request.method == 'POST':
+        try:
+            print(f"Deleting thread {thread_id} for user {user_id}")
+            deleted_thread_name = utils.delete_thread(user_id, thread_id)
+            return JsonResponse({"message": "Thread deleted successfully",
+                                  "status": "success",
+                                  "deletedThreadName" : deleted_thread_name}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
 class ConversationListView(APIView):
 
     def get(self, request):

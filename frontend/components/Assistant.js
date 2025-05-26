@@ -2,6 +2,9 @@ import Styles from '../styles/Assistant.module.css'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthProvider'
 import AssistantInput from './AssistantInput'
+import RenameButton from './RenameButton'
+import DeleteButton from './DeleteButton'
+
 
 
 
@@ -91,7 +94,11 @@ export default function Assistant() {
   
   return (
     <section className={Styles.assistant}>
-      <h1>AI Assistant</h1>
+      <div className={Styles.header}>
+        <h1>AI Assistant</h1>
+        <RenameButton/>
+        <DeleteButton />
+      </div>
       <div className={Styles.content} ref={assistantRef} >
         <ul className={Styles.messages}></ul>
       </div>

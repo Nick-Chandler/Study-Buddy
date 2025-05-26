@@ -6,6 +6,7 @@ import { AuthProvider } from '../components/AuthProvider';
 import { useAuth } from '../components/AuthProvider';
 import { useEffect } from 'react';
 
+
 export default function index() {
 
   const { user } = useAuth()

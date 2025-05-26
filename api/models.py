@@ -49,4 +49,19 @@ class OpenAIThread(models.Model):
 
     def __str__(self):
         return f"Thread for {self.user.username}: {self.thread_id}"
+def generate_incremented_name():
+  last_file = UserFiles.objects.order_by('-id').first()
+  if last_file and last_file.name.startswith('file-'):
+    try:
+      last_number = int(last_file.name.split('-')[1])
+      return f'file-{last_number + 1}'
+    except (IndexError, ValueError):
+      pass
+  return 'file-1'  
+
+class UserFiles(models.Model):
+  user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
+  name = models.CharField(max_length=100, default=generate_incremented_name, unique=True)
+  file = models.FileField(upload_to='uploads/')
+
 
