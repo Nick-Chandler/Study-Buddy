@@ -6,7 +6,7 @@ import AssistantInput from './AssistantInput'
 
 
 export default function Assistant() {
-  const { user, conversations, activeThread, activeMessages, setActiveThread, setActiveMessages } = useAuth()
+  const { user, threads, activeThread, activeMessages, setActiveThread, setActiveMessages } = useAuth()
   const assistantRef = useRef(null);
   useEffect(() => {
     console.log("Assistant - Loaded")
@@ -24,11 +24,8 @@ export default function Assistant() {
   useEffect(() => {
     console.log("Active Messages Changed: ", activeMessages)
     displayMessages();
-    // assistantRef?.current && scrollToBottom(assistantRef);
+    assistantRef?.current && scrollToBottom(assistantRef);
   }, [activeMessages]);
-
-  useEffect(() => {
-  }, [activeThread]);
 
   async function getUserThreadMessages(userId, activeThread) {
     console.log("Get Thread Messages - Fetching User Thread Messages");
@@ -36,7 +33,7 @@ export default function Assistant() {
     console.log("Get Thread Messages - Active Thread: ", activeThread);
     console.log("Get Thread Messages - Type of User ID: ", typeof userId);
     console.log("Get Thread Messages - Type of Thread ID: ", typeof activeThread);
-    if(!Number.isInteger(userId) || !Number.isInteger(activeThread)) {
+    if(!Number.isInteger(userId) || !typeof activeThread === 'string' || !userId || !activeThread) {
       console.log("Get Thread Messages - No User ID or Active Thread Found");
       return;
     }
@@ -82,8 +79,11 @@ export default function Assistant() {
 
 
   useEffect(() => {
-    if (activeThread === null || activeThread === undefined || activeThread === "") 
+    if (!activeThread) 
       return
+    if (activeThread === "new")
+      create_new_thread_for_user(user?.user?.id || "")
+
     console.log("Assistant - Active Thread Changed: ", activeThread);
     console.log("Assistant - Calling getUserThreadMessages");
     getUserThreadMessages(user?.user?.id || [], activeThread)

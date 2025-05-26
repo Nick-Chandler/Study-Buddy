@@ -10,10 +10,9 @@ export function AuthProvider({ children }) {
   console.log("AuthProvider - Rendered");
   
   const [user, setUser] = useState({});
-  const [conversations, setConversations] = useState([]);
-  const [activeThread, setActiveThread] = useState(0);
   const [activeMessages, setActiveMessages] = useState([]);
-  const [userConversations, setUserConversations] = useState([]);
+  const [threads, setThreads] = useState([]);
+  const [activeThread, setActiveThread] = useState(threads[0]?.thread_id || 0); // Initialize activeThread to first thread or 0 if none
   const router = useRouter();
 
   console.log("AuthProvider - States Generated");
@@ -73,8 +72,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     console.log("User Changed: ", user);
     if (!user || user === null || user === undefined || user == {}) return;
-    console.log("Context - Setting Conversations for User", user);
-    getUserConversations(user?.user?.id || []);
+    console.log("Context - Setting Threads for User", user);
+    getUserThreads(user?.user?.id || []);
   }, [user]);
 
   
@@ -93,7 +92,7 @@ export function AuthProvider({ children }) {
     router.reload();
   };
   
-  async function getUserConversations(userId) {
+  async function getUserThreads(userId) {
     if (
       !userId ||
       userId.length === 0 ||
@@ -109,16 +108,17 @@ export function AuthProvider({ children }) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const threadArray = await response.json(); // <- this is your JSON array
-      console.log("User Conversations:", threadArray);
+      console.log("User Threads:", threadArray);
       console.log(typeof threadArray);
       const objectArray = threadArray.map((obj) => ({
         name: obj.name,
         thread_id: obj.thread_id,
       }));
-      setUserConversations(objectArray);
+      setThreads(objectArray);
+      setActiveThread(objectArray[0]?.thread_id || 0); // Set active thread to first thread or 0 if none
     } catch (error) {
-      console.error("Failed to fetch user conversations:", error);
-      return setUserConversations([]); // Set to empty array on error
+      console.error("Failed to fetch user Threads:", error);
+      return setThreads([]); // Set to empty array on error
     }
   }
   function addMessage(msg, role) {
@@ -131,9 +131,9 @@ export function AuthProvider({ children }) {
     setActiveMessages((prevMessages) => [temp_msg, ...prevMessages]);
   }
   
-  async function getAiResponse(user_id, thread_idx, user_input) {
-    const url = `http://localhost:8000/assistant/${user_id}/${thread_idx}`
-    console.log("Context - thread_idx: ", thread_idx)
+  async function getAiResponse(user_id, user_input) {
+    const url = `http://localhost:8000/assistant/${user_id}/${activeThread}`
+    console.log("Context - Active Thread: ", activeThread)
     
     const response = await fetch(url, {
       method: 'POST',
@@ -149,22 +149,23 @@ export function AuthProvider({ children }) {
 }
 
 
+
   return (
     <AuthContext.Provider
       value={{
         user,
-        conversations,
         activeThread,
         activeMessages,
-        userConversations,
+        threads,
         setActiveThread,
         setActiveMessages,
         addMessage,
         login,
         logout,
-        getUserConversations,
+        getUserThreads,
         getAiResponse,
         validateLoginToken,
+        setThreads,
       }}
     >
       {children}

@@ -171,7 +171,7 @@ def get_nth_thread_id(user_id: int, n: int):
 
   return threads[n].thread_id
 
-def create_new_thread_for_user(user_id: int, name: str = "Unnamed Thread"):
+def create_new_thread_for_user(user_id: int, name: str):
   try:
     user = User.objects.get(id=user_id)
   except User.DoesNotExist:

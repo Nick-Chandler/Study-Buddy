@@ -1,17 +1,19 @@
 import React from 'react'
 import { useAuth } from './AuthProvider'
 import Styles from '../styles/Navbar.module.css'
-import ConversationSelect from './ConversationSelect'
+import ThreadSelect from './ThreadSelect'
+import NewThread from './NewThread'
 
 
 export default function LoggedInAccount() {
 
-  const { user, conversations, activeThread, userConversations, setActiveThread, login, logout, getUserConversations } = useAuth()
+  const { user, activeThread, threads, setActiveThread, login, logout, getThreads } = useAuth()
   
 
   return (
     <div className={Styles.account}>
-      <ConversationSelect></ConversationSelect>
+      <NewThread></NewThread>
+      <ThreadSelect></ThreadSelect>
       <button className={Styles.logout} onClick={logout}>Logout</button>
     </div>
   )

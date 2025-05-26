@@ -12,10 +12,10 @@ from api import gpt_assistant, utils
 
     
 @csrf_exempt
-def assistant(request, user_id, thread_idx):
+def assistant(request, user_id, thread_id):
 
     if request.method == 'POST':
-        print(f"Assistant User ID: {user_id}, Thread Index: {thread_idx}")
+        print(f"Assistant User ID: {user_id}, Thread Id: {thread_id}")
         print("Decoding request body...")
         body_unicode = request.body.decode('utf-8')
         print(f"Request body: {body_unicode}")
@@ -28,7 +28,7 @@ def assistant(request, user_id, thread_idx):
 
         try:
             print("Calling assistant function...")
-            gpt_response = gpt_assistant.run_assistant(user_id, thread_idx, user_input)
+            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input)
             print(f"GPT Response: {gpt_response}")
             print(f"Type of GPT Response: {type(gpt_response)}")
 
@@ -38,21 +38,35 @@ def assistant(request, user_id, thread_idx):
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     
 def get_user_thread_list(request, user_id):
-    user_threads = utils.get_user_thread_list(user_id, sort_by_last_accessed=False)
+    user_threads = utils.get_user_thread_list(user_id, sort_by_last_accessed=True)
     print(f"User threads: ", user_threads)
 
     return JsonResponse(user_threads, safe=False)
 
-def get_user_thread_messages(request, user_id, thread_idx):
-    print(f"Fetching messages for user {user_id} thread index {thread_idx}")
-    thread_id = utils.get_nth_thread_id(user_id, thread_idx)
-    print(f"Thread ID: {thread_id}")
-    if thread_id is None:
-        print(f"Thread not found for user {user_id} at index {thread_idx}")
+def get_user_thread_messages(request, user_id, thread_id):
+    print(f"Fetching messages for user {user_id}: thread index {thread_id}")
+    if not thread_id:
+        print(f"Thread id {thread_id} not found for user: {user_id}")
         return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
     print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
+    OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
     messages = utils.fetch_thread_messages(thread_id)
     return JsonResponse(messages, safe=False)
+
+@csrf_exempt
+def create_thread_for_user(request, user_id, name="Untitled Thread"):
+    if request.method == 'POST':
+        try:
+            print(f"Creating thread for user {user_id}")
+            thread_id = utils.create_new_thread_for_user(user_id, name)
+            print(f"Thread created: {thread_id}")
+            return JsonResponse({"message": "Thread created successfully",
+                                  "status": "success",
+                                  "threadId": thread_id,
+                                  "name": name}, status=201)
+        except Exception as e:
+            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
 
 class ConversationListView(APIView):
 

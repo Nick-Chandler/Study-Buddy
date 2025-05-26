@@ -22,12 +22,10 @@ export default function Navbar() {
       <div className={Styles.container}>
         <div className={Styles.placeholder}>{user?.user?.username || 'Guest'}</div>
         <h1 className={Styles.title}>Study Buddy</h1>
-          <div className={Styles.account}>
-            {loggedIn ? (<LoggedInAccount />) :
-              (<Link className={Styles.login} href="/login">
-                <button>Login</button>
-              </Link>)}
-          </div>
+          {loggedIn ? (<LoggedInAccount />) :
+            (<Link className={Styles.login} href="/login">
+              <button>Login</button>
+            </Link>)}
       </div>
     </nav>
   )

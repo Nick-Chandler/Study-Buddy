@@ -20,9 +20,10 @@ from api import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("assistant/<int:user_id>/<int:thread_idx>", views.assistant, name="assistant"),
+    path("assistant/<int:user_id>/<str:thread_id>", views.assistant, name="assistant"),
     path("get_user_thread_list/<int:user_id>", views.get_user_thread_list, name="get_user_thread_list"),
-    path("get_user_thread_messages/<int:user_id>/<int:thread_idx>", views.get_user_thread_messages, name="get_user_thread_messages"),
+    path("get_user_thread_messages/<int:user_id>/<str:thread_id>", views.get_user_thread_messages, name="get_user_thread_messages"),
+    path('create_thread_for_user/<int:user_id>/<str:name>', views.create_thread_for_user, name='create_thread_for_user'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('conversation/<str:cid>/', views.conversation_view, name='conversation'),

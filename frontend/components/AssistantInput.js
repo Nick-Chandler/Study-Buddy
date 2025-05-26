@@ -16,7 +16,7 @@ export default function AssistantInput(props) {
   async function talkToAssistant(e) {
     e.preventDefault() // Prevent default form submission
     // call api to get response
-    let userId = user?.user?.id || null
+    let userId = user?.user?.id || ""
     console.log("AssistantInput - User ID: ", userId)
     console.log("AssistantInput - Active Thread: ", activeThread)
     if (!userId) return
@@ -24,7 +24,9 @@ export default function AssistantInput(props) {
     let temp_input = input
     addMessage(temp_input, "human")
     setInput('') // Clear input field
-    let response = await getAiResponse(userId, activeThread, temp_input)
+    console.log("Calling getAiResponse with User ID: ", userId, " and Active Thread: ", activeThread)
+    console.log("Calling getAiResponse with Input: ", temp_input)
+    let response = await getAiResponse(userId, temp_input)
     // Add Assistant Message to active Messages
     addMessage(response, "ai") // Add Assistant Message to active Messages
   }

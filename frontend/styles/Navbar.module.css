@@ -11,7 +11,7 @@
 
 .container {
   height: 100%;
-  width: 100%;
+  width: 95%;
   display: flex;
   justify-content: space-between;
   padding: 0 2rem;
@@ -31,8 +31,20 @@
 
 .account {
   display: flex;
-  width: 10%;
+  width: 30%;
   justify-content: space-between;
+}
+
+.newThreadbtn {
+  cursor: pointer;
+}
+
+.threadSelect {
+  cursor: pointer;
+}
+
+.threadSelect:hover {
+  background-color: lightgray; /* darker shade */
 }
 
 .login {
