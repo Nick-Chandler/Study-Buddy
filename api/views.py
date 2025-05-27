@@ -38,7 +38,8 @@ def assistant(request, user_id, thread_id):
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     
 def get_user_thread_list(request, user_id):
-    user_threads = utils.get_user_thread_list(user_id, sort_by_last_accessed=True)
+    print(f"Fetching thread list for user {user_id}")
+    user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True)
     print(f"User threads: ", user_threads)
 
     return JsonResponse(user_threads, safe=False)
@@ -50,30 +51,32 @@ def get_user_thread_messages(request, user_id, thread_id):
         return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
     print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
     OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
-    messages = utils.fetch_thread_messages(thread_id)
+    messages = utils.fetch_thread_messages(thread_id)  
     return JsonResponse(messages, safe=False)
 
 @csrf_exempt
 def create_thread_for_user(request, user_id, name="Untitled Thread"):
     if request.method == 'POST':
-        try:
+        try: 
             print(f"Creating thread for user {user_id}")
-            thread_id = utils.create_new_thread_for_user(user_id, name)
-            print(f"Thread created: {thread_id}")
-            return JsonResponse({"message": "Thread created successfully",
-                                  "status": "success",
-                                  "threadId": thread_id,
-                                  "name": name}, status=201)
+            user_instance = User.objects.get(id=user_id)
+            new_thread = OpenAIThread.objects.create(user=user_instance, name=name)
+            print(f"Thread created: {new_thread.thread_id} for user {user_id} with name {name}")
         except Exception as e:
+            print(f"Error creating thread for user {user_id}: {e}")
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
-    return JsonResponse({"error": "Invalid request method"}, status=400)
+        return JsonResponse({"message": "Thread created successfully",
+                                "status": "success",
+                                "threadId": new_thread.thread_id,
+                                "name": name}, status=201)
 
 @csrf_exempt
 def rename_thread(request, user_id, thread_id, new_name):
     if request.method == 'POST':
         try:
             print(f"Renaming thread {thread_id} for user {user_id} to {new_name}")
-            utils.rename_thread(user_id, thread_id, new_name)
+            thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
+            thread.rename_thread(new_name)
             return JsonResponse({"message": "Thread renamed successfully",
                                   "status": "success",
                                   "newThreadName" : new_name}, status=200)

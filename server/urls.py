@@ -28,7 +28,5 @@ urlpatterns = [
     path('delete_thread/<int:user_id>/<str:thread_id>', views.delete_thread, name='delete_thread'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
-    path('conversation/<str:cid>/', views.conversation_view, name='conversation'),
-    path('conversationlist/', views.ConversationListView.as_view(), name='conversation-list'),
     path('threads/', views.OpenAIThreadListView.as_view(), name='thread-list'),
 ]

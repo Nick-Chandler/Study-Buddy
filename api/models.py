@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import uuid  # To generate unique conversation IDs
+import openai
 
 class Conversation(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations")
@@ -33,24 +34,49 @@ class OpenAIAssistant(models.Model):
   def __str__(self):
     return f"{self.name} ({self.assistant_id})"
   
+def generate_thread():
+    # Call OpenAI API
+    thread = openai.beta.threads.create()
+
+    print(f"New OpenAIThread created: {thread.id}")
+    return thread.id
+  
 class OpenAIThread(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='openai_threads')
     name = models.CharField(max_length=255)
-    thread_id = models.CharField(max_length=100, unique=True)
+    thread_id = models.CharField(max_length=100, unique=True, default=generate_thread, primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
     last_accessed = models.DateTimeField(default=timezone.now)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.pk:  # Ensure the instance is already saved in the database
-          self.last_accessed = timezone.now()
-          self.save()
-          print("Updated last_accessed to current time.")
 
     def __str__(self):
         return f"Thread for {self.user.username}: {self.thread_id}"
+    
+    def rename_thread(self, new_name):
+        self.name = new_name
+        self.save()
+        print(f"Thread renamed to {self.name}")
+    
+    def get_threads_for_user(user_id, name_list=False):
+      user = User.objects.get(id=user_id)
+      if not name_list:
+        return OpenAIThread.objects.filter(user_id=user_id).order_by('-last_accessed')
+      else:
+        print(f"Fetching threads for user {user_id} with name_list=True")
+        threads = OpenAIThread.objects.filter(user=user).order_by('-last_accessed')
+        for thread in threads:
+          print(f"Thread ID: {thread.thread_id}, Name: {thread.name}, Last Accessed: {thread.last_accessed}")
+        print(f"Threads for user {user_id}: {threads}")
+        thread_objs = [{"name": thread.name, "thread_id": thread.thread_id} for thread in threads]
+        print(f"Thread objects for user {user_id}: {thread_objs}")
+        return thread_objs
+    def delete_thread(self):
+        # Delete the thread using the OpenAI API
+        openai.beta.threads.delete(thread_id=self.thread_id)
+        self.delete()
+        print(f"Thread {self.thread_id} deleted")
 def generate_incremented_name():
-  last_file = UserFiles.objects.order_by('-id').first()
+  last_file = UserFile.objects.order_by('-id').first()
   if last_file and last_file.name.startswith('file-'):
     try:
       last_number = int(last_file.name.split('-')[1])
@@ -59,9 +85,10 @@ def generate_incremented_name():
       pass
   return 'file-1'  
 
-class UserFiles(models.Model):
+class UserFile(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
   name = models.CharField(max_length=100, default=generate_incremented_name, unique=True)
   file = models.FileField(upload_to='uploads/')
+  last_accessed = models.DateTimeField(auto_now=True)
 
 

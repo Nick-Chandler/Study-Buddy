@@ -101,6 +101,8 @@ export function AuthProvider({ children }) {
     )
       return;
       try {
+        console.log("getUserThreads - userId: ", userId);
+        console.log("getUserThreads - typeof userId: ", typeof userId);
         let url = `http://localhost:8000/get_user_thread_list/${userId}`;
         console.log("Thread List URL:", url);
         const response = await fetch(url);
