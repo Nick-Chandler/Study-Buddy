@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import ConversationSerializer, UserSerializer, OpenAIThreadSerializer
-from api.models import Conversation, OpenAIThread
+from .serializers import ConversationSerializer, UserSerializer, OpenAIThreadSerializer, UserFileSerializer
+from api.models import Conversation, OpenAIThread, UserFile
 from api import gpt_assistant, utils
 
     
@@ -55,6 +55,27 @@ def get_user_thread_messages(request, user_id, thread_id):
     return JsonResponse(messages, safe=False)
 
 @csrf_exempt
+def upload_file(request, user_id):
+    if request.method == 'POST':
+        try:
+            print(f"Uploading file for user {user_id}")
+            file = request.FILES.get('file')
+            filename = request.POST.get('filename')
+            if not file or not filename:
+                return JsonResponse({"error": "No file found", "status": "failure"}, status=400)
+
+            print(f"File received: Filename: {filename}")
+            
+            file_instance = UserFile.objects.create(user_id=user_id, filename=filename, file=file)
+            return JsonResponse({"message": "File uploaded successfully",
+                                  "status": "success",
+                                  "filename": filename}, status=201)
+        except Exception as e:
+            print(f"Error uploading file for user {user_id}: {e}")
+            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=400)
+
+@csrf_exempt
 def create_thread_for_user(request, user_id, name="Untitled Thread"):
     if request.method == 'POST':
         try: 
@@ -98,14 +119,12 @@ def delete_thread(request, user_id, thread_id):
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
 class ConversationListView(APIView):
-
     def get(self, request):
         # Retrieve all conversations
         conversations = Conversation.objects.all()
         serializer = ConversationSerializer(conversations, many=True)
         return Response(serializer.data)
-
-
+    
 
 @csrf_exempt
 def login_view(request):
@@ -205,5 +224,10 @@ class OpenAIThreadListView(APIView):
         return Response(serializer.data)
 
 
+class AllUserFilesView(APIView):
 
-
+    def get(self, request):
+        # Retrieve all user files
+        user_files = UserFile.objects.all()
+        serializer = UserFileSerializer(user_files, many=True)
+        return Response(serializer.data)

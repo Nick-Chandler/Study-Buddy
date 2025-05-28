@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Conversation, Message, OpenAIAssistant, OpenAIThread
+from .models import Conversation, Message, OpenAIAssistant, OpenAIThread, UserFile
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,4 +22,10 @@ class UserSerializer(serializers.ModelSerializer):
 class OpenAIThreadSerializer(serializers.ModelSerializer):
     class Meta:
         model = OpenAIThread
-        fields = ['id', 'user', 'name', 'thread_id', 'created_at', 'last_accessed']  # Include all fields
+        fields = ['user', 'name', 'thread_id', 'created_at', 'last_accessed']  # Include all fields
+
+class UserFileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    class Meta:
+        model = UserFile
+        fields = ['id', 'user','username','filename', 'last_accessed']  # Assuming user_files is a related name for UserFiles model

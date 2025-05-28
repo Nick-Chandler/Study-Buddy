@@ -295,3 +295,13 @@ def delete_thread(user_id: int, thread_id: str):
   except Exception as e:
     print(f"Error deleting thread: {e}")
     raise
+
+# def generate_incremented_filename():
+#   last_file = UserFile.objects.order_by('-id').first()
+#   if last_file and last_file.name.startswith('file-'):
+#     try:
+#       last_number = int(last_file.name.split('-')[1])
+#       return f'file-{last_number + 1}'
+#     except (IndexError, ValueError):
+#       pass
+#   return 'file-1'  

@@ -75,20 +75,16 @@ class OpenAIThread(models.Model):
         openai.beta.threads.delete(thread_id=self.thread_id)
         self.delete()
         print(f"Thread {self.thread_id} deleted")
-def generate_incremented_name():
-  last_file = UserFile.objects.order_by('-id').first()
-  if last_file and last_file.name.startswith('file-'):
-    try:
-      last_number = int(last_file.name.split('-')[1])
-      return f'file-{last_number + 1}'
-    except (IndexError, ValueError):
-      pass
-  return 'file-1'  
+
 
 class UserFile(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
-  name = models.CharField(max_length=100, default=generate_incremented_name, unique=True)
+  filename = models.CharField(max_length=100)
   file = models.FileField(upload_to='uploads/')
   last_accessed = models.DateTimeField(auto_now=True)
+  class Meta:
+    constraints = [
+      models.UniqueConstraint(fields=['user', 'filename'], name='unique_filename_per_user')
+    ]
 
 

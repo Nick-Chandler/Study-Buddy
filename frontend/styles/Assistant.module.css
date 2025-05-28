@@ -3,12 +3,44 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1rem;
-  background-color: #212121;
+  background-color: #1E1E1E;
   color: #FFFFFF;
 }
 
 .header {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: .5rem;
+}
+
+.header > * {
+  flex: 1;
+  justify-self: center;
+  height: 100%;
+}
+
+.placeholder {
+  flex: 1;
+}
+
+.titles {
+  flex: 1;
+}
+
+.titles p {
+  margin: 0;
+}
+
+.btnContainer {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btnContainer > button {
+  height: 35%;
+  align-self: flex-end;
 }
 
 .content {
@@ -20,7 +52,7 @@
   padding: .5rem;
   font-size: 15px;
   border: 1px solid darkgray;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .messages {
@@ -50,16 +82,15 @@
   border-radius: 20px;
   width: fit-content;
 }
-.assistant {
-}
 
 .input {
-  background-color: #40414F;
+  background-color: #444647;
   display: flex;
   justify-content: space-between;
   height: 4rem;
   border-radius: 20px;
   padding: .5rem;
+  margin-top: .5rem;
 }
 
 .inputField {

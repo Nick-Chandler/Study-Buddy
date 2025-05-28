@@ -34,7 +34,7 @@ export default function AssistantInput(props) {
 
 
   return (
-    <form id="input" className={Styles.input} onSubmit={talkToAssistant}>
+    <form id="input" className={Styles.input} onSubmit={talkToAssistant} autoComplete="off">
       <input
         className={Styles.inputField}
         type="text"

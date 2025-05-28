@@ -95,9 +95,15 @@ export default function Assistant() {
   return (
     <section className={Styles.assistant}>
       <div className={Styles.header}>
-        <h1>AI Assistant</h1>
-        <RenameButton/>
-        <DeleteButton />
+        <div className={Styles.placeholder}></div>
+        <div className={Styles.titles}>
+          <h1>Assistant</h1>
+          <p>{threads.find(thread => thread.thread_id === activeThread)?.name || "New Conversation"}</p>
+        </div>
+        <div className={Styles.btnContainer}>
+          <RenameButton/>
+          <DeleteButton />
+        </div>
       </div>
       <div className={Styles.content} ref={assistantRef} >
         <ul className={Styles.messages}></ul>

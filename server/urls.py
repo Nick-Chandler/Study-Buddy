@@ -26,7 +26,9 @@ urlpatterns = [
     path('create_thread_for_user/<int:user_id>/<str:name>', views.create_thread_for_user, name='create_thread_for_user'),
     path('rename_thread/<int:user_id>/<str:thread_id>/<str:new_name>', views.rename_thread, name='rename_thread'),
     path('delete_thread/<int:user_id>/<str:thread_id>', views.delete_thread, name='delete_thread'),
+    path('upload_file/<int:user_id>',views.upload_file, name='upload_file'),
     path('login/', views.login_view, name='login'),
     path('register/', views.register_view, name='register'),
     path('threads/', views.OpenAIThreadListView.as_view(), name='thread-list'),
+    path('all-files/', views.AllUserFilesView.as_view(), name='all-user-files'),
 ]
