@@ -1,6 +1,7 @@
 import Styles from '../styles/Assistant.module.css'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthProvider'
+import { useTheme } from './ThemeProvider'
 import AssistantInput from './AssistantInput'
 import RenameButton from './RenameButton'
 import DeleteButton from './DeleteButton'
@@ -10,6 +11,7 @@ import DeleteButton from './DeleteButton'
 
 export default function Assistant() {
   const { user, threads, activeThread, activeMessages, setActiveThread, setActiveMessages } = useAuth()
+  const { theme } = useTheme()
   const assistantRef = useRef(null);
   useEffect(() => {
     console.log("Assistant - Loaded")
@@ -93,7 +95,7 @@ export default function Assistant() {
     }, [activeThread]);
   
   return (
-    <section className={Styles.assistant}>
+    <section className={`${Styles.assistant} ${theme==='light' ? Styles.lightTheme : null} `}>
       <div className={Styles.header}>
         <div className={Styles.placeholder}></div>
         <div className={Styles.titles}>

@@ -2,7 +2,7 @@ BEFORE RELEASE (v1.0)
 - Retrieve Last Conversation -- DONE
 - Allow Multiple Conversations per workspace -- DONE
 - Create User Files Model -- DONE
-- Frontend File Upload
+- Frontend File Upload -- DONE
 - Basic Customizations
   - Preset Themes
 - Modernize Design

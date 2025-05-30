@@ -2,10 +2,12 @@ import { useState } from 'react';
 import Styles from '../styles/Workspace.module.css';
 import FileView from './FileView';
 import { useAuth } from './AuthProvider';
+import { useTheme } from './ThemeProvider';
 
 export default function Workspace() {
   const [fileUrl, setFileUrl] = useState(null);
   const { user } = useAuth(); // Get the user from AuthProvider
+  const { theme } = useTheme()
 
 
   function handleFileChange(e) {
@@ -55,7 +57,7 @@ export default function Workspace() {
   }
 
   return (
-    <section className={Styles.workspace}>
+    <section className={`${Styles.workspace} ${theme==='light' ? Styles.lightTheme : null}`}>
       <h1>Workspace</h1>
       <label className={Styles.uploadbtn}>
         Upload
@@ -66,7 +68,7 @@ export default function Workspace() {
           onChange={handleFileChange} // Handle file selection
         />
       </label>
-      <div className={Styles.content}>
+      <div className={`${Styles.content}`}>
         <FileView file={fileUrl} /> {/* Pass the file URL as a prop */}
       </div>
     </section>

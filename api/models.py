@@ -12,15 +12,6 @@ class Conversation(models.Model):
 
   def __str__(self):
       return self.name
-
-class Message(models.Model):
-  conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
-  role = models.CharField(max_length=10, choices=[("human", "Human"), ("ai", "AI")])
-  content = models.TextField()
-  timestamp = models.DateTimeField(auto_now_add=True)
-
-  def __str__(self):
-      return f"{self.role}: {self.content[:50]}"
   
 from django.db import models
 
@@ -76,6 +67,29 @@ class OpenAIThread(models.Model):
         self.delete()
         print(f"Thread {self.thread_id} deleted")
 
+    def get_messages_for_thread(self):
+      print(f"Starting: Get Messages for Thread...")
+      queryset = self.messages.all()
+      msgs = []
+      print("queryset", queryset)
+      for q in queryset:
+        print("q:",q)
+        msgs.append({
+          'id': q.message_id,
+          'role': q.role,
+          'text': q.content,
+        })
+      return msgs
+
+class ThreadMessage(models.Model):
+  message_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  thread = models.ForeignKey(OpenAIThread, on_delete=models.CASCADE, related_name='messages')
+  role = models.CharField(max_length=10)  # 'human' or 'ai'
+  content = models.TextField()
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return f"{self.role} message in thread {self.thread.thread_id} at {self.created_at}"
 
 class UserFile(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')

@@ -6,8 +6,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import ConversationSerializer, UserSerializer, OpenAIThreadSerializer, UserFileSerializer
-from api.models import Conversation, OpenAIThread, UserFile
+from .serializers import UserSerializer, OpenAIThreadSerializer, UserFileSerializer
+from api.models import OpenAIThread, ThreadMessage, UserFile
 from api import gpt_assistant, utils
 
     
@@ -25,10 +25,12 @@ def assistant(request, user_id, thread_id):
         print("Retrieving user input...")
         user_input = body_data.get('user_input', '')
         print(f"User input: {user_input}")
-
+        thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
+        human_message = ThreadMessage.objects.create(thread=thread, role="human", content=user_input)
         try:
             print("Calling assistant function...")
             gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input)
+            ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
             print(f"GPT Response: {gpt_response}")
             print(f"Type of GPT Response: {type(gpt_response)}")
 
@@ -50,9 +52,12 @@ def get_user_thread_messages(request, user_id, thread_id):
         print(f"Thread id {thread_id} not found for user: {user_id}")
         return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
     print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
-    OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
-    messages = utils.fetch_thread_messages(thread_id)  
-    return JsonResponse(messages, safe=False)
+    thread = OpenAIThread.objects.get(thread_id=thread_id)
+    thread_msgs = thread.get_messages_for_thread()
+    # thread_msgs = ThreadMessage.objects.filter(thread__thread_id=thread_id).order_by('created_at') 
+    print(f"thread messages: {thread_msgs}")
+    return JsonResponse(thread_msgs, safe=False)
+
 
 @csrf_exempt
 def upload_file(request, user_id):
@@ -117,13 +122,6 @@ def delete_thread(request, user_id, thread_id):
         except Exception as e:
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=400)
-
-class ConversationListView(APIView):
-    def get(self, request):
-        # Retrieve all conversations
-        conversations = Conversation.objects.all()
-        serializer = ConversationSerializer(conversations, many=True)
-        return Response(serializer.data)
     
 
 @csrf_exempt
@@ -207,13 +205,6 @@ def conversation_view(request, cid):
         except Exception as e:
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     
-class ConversationListView(APIView):
-
-    def get(self, request):
-        # Retrieve all conversations
-        conversations = Conversation.objects.all()
-        serializer = ConversationSerializer(conversations, many=True)
-        return Response(serializer.data)
     
 class OpenAIThreadListView(APIView):
 

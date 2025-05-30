@@ -1,13 +1,17 @@
 .navbar {
   display: flex;
   height: 6%;
-  background-color: #2d2d2de1;
   width: 100%;
   padding: 0;
   border: 1px solid black;
   justify-content: center;
   align-items: center;
   color: white
+}
+
+.lightTheme {
+  background-color: antiquewhite;
+  color: black;
 }
 
 .container {

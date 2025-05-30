@@ -4,9 +4,9 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from api.models import User, Conversation, Message, OpenAIAssistant
-from .serializers import ConversationSerializer
+from api.models import User, Conversation, OpenAIAssistant
 from api.models import OpenAIThread, User
+from api.serializers import OpenAIThreadSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 import openai, time
@@ -68,26 +68,6 @@ def form_prompt(user_input, history):
 
   return prompt_template
 
-
-def store_message(human_msg, ai_msg, cid):
-    print(f"Storing messages for conversation ID: {cid}")
-    convo = Conversation.objects.get(conversation_id=cid)
-    print(f"Got conversation: {convo}")
-    Message.objects.create(
-        conversation=convo,
-        role="human",
-        content=human_msg
-    )
-    print(f"Created message for user: {human_msg}")
-
-    Message.objects.create(
-        conversation=convo,
-        role="ai",
-        content=ai_msg
-    )
-    print(f"Created message for AI: {ai_msg}")
-
-    print("Messages stored successfully")
   
 def form_chain(prompt_template, model, history, user_input):
   prompt_template.invoke({
@@ -116,7 +96,7 @@ def get_user_threads(user_id):
     conversations = Conversation.objects.filter(user_id=user_id)
     
     # Serialize the conversations
-    serializer = ConversationSerializer(conversations, many=True)
+    serializer = OpenAIThreadSerializer(conversations, many=True)
     
     # Return the serialized data as a JSON response
     return {"status": "success", "data": serializer.data}

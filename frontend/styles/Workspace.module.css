@@ -8,6 +8,11 @@
   height: 100%;
 }
 
+.lightTheme {
+  background-color: antiquewhite;
+  color: black;
+}
+
 .content {
   background-color: #2d2d2de1;
   height: 90%;
