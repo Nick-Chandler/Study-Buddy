@@ -31,5 +31,6 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('threads/', views.OpenAIThreadListView.as_view(), name='thread-list'),
     path('all-files/', views.AllUserFilesView.as_view(), name='all-user-files'),
+    path('file-url/', views.get_file_url, name='get_file_url'),
     # path('test/', views.test_view, name='test-view'),
 ]

@@ -130,7 +130,7 @@ export function AuthProvider({ children }) {
       role: role,
       text: msg,
     }
-    setActiveMessages((prevMessages) => [temp_msg, ...prevMessages]);
+    setActiveMessages((prevMessages) => [ ...prevMessages, temp_msg]);
   }
   
   async function getAiResponse(user_id, user_input) {

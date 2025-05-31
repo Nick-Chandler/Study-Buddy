@@ -6,6 +6,7 @@ import AssistantInput from './AssistantInput'
 import RenameButton from './RenameButton'
 import DeleteButton from './DeleteButton'
 
+import MessageList from './MessageList'
 
 
 
@@ -28,7 +29,6 @@ export default function Assistant() {
  
   useEffect(() => {
     console.log("Active Messages Changed: ", activeMessages)
-    displayMessages();
     assistantRef?.current && scrollToBottom(assistantRef);
   }, [activeMessages]);
 
@@ -61,21 +61,6 @@ export default function Assistant() {
     return msgs;
   }
 
-  function displayMessages() {
-    let reversed = [...activeMessages].reverse();
-    const ulElement = document.querySelector(`.${Styles.messages}`);
-    ulElement.innerHTML = ""; // Clear existing messages
-    console.log(`Assistant - Active Messages: ${reversed}`)
-    reversed.forEach((message) => {
-      console.log("Assistant - Message: ", message);
-      const li = document.createElement("li");
-      const p = document.createElement("p");
-      p.className = Styles[message.role]; // Apply dynamic class based on message role
-      p.textContent = message.text; // Set the message content
-      li.appendChild(p);
-      ulElement.appendChild(li);
-    });
-  }
   
   function scrollToBottom() {
     console.log("Ref: ",assistantRef.current)
@@ -108,7 +93,7 @@ export default function Assistant() {
         </div>
       </div>
       <div className={Styles.content} ref={assistantRef} >
-        <ul className={Styles.messages}></ul>
+        <MessageList className={Styles.messages} messages={activeMessages} />
       </div>
       <AssistantInput />
     </section>

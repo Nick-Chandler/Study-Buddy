@@ -16,6 +16,7 @@ class Command(BaseCommand):
       assistant_id=assistant_id,
       instructions="You are a general chatbot specializing in homework and study assistance. Be concise and clear in your responses. If you don't know the answer, say 'I don't know'.",
       name="Homework Assistant",
+      tools=[{'type': 'file_search'}]
     )
       print(f"Assistant {assistant_id} updated successfully.")
     except Exception as e:

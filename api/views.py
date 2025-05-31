@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from .serializers import UserSerializer, OpenAIThreadSerializer, UserFileSerializer
 from api.models import OpenAIThread, ThreadMessage, UserFile
 from api import gpt_assistant, utils
+from django.shortcuts import get_object_or_404
 
     
 @csrf_exempt
@@ -122,6 +123,17 @@ def delete_thread(request, user_id, thread_id):
         except Exception as e:
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     return JsonResponse({"error": "Invalid request method"}, status=400)
+
+
+@csrf_exempt
+def get_file_url(request):
+    if request.method == 'GET':
+        user = User.objects.get(id=1)
+        user_file = UserFile.objects.filter(user=user).first()
+        file_url = request.build_absolute_uri(user_file.file.url)
+        return JsonResponse({'file_url': file_url}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
     
 
 @csrf_exempt
