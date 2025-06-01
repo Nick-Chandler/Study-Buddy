@@ -72,7 +72,12 @@ def upload_file(request, user_id):
 
             print(f"File received: Filename: {filename}")
             
-            file_instance = UserFile.objects.create(user_id=user_id, filename=filename, file=file)
+            try:
+                file_instance = UserFile.objects.create(user_id=user_id, filename=filename, file=file)
+                print("UserFile instance created successfully")
+            except Exception as e:
+                print(f"Error creating UserFile instance: {e}")
+                return JsonResponse({"error": "Failed to create file instance", "status": "failure"}, status=500)
             return JsonResponse({"message": "File uploaded successfully",
                                   "status": "success",
                                   "filename": filename}, status=201)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.files.storage import storages
 import uuid  # To generate unique conversation IDs
 import openai
 
@@ -91,14 +92,14 @@ class ThreadMessage(models.Model):
   def __str__(self):
     return f"{self.role} message in thread {self.thread.thread_id} at {self.created_at}"
   
-def user_file_path(instance, filename):
-    
-    return f"uploads/{instance.user.username}/{filename}"  # Store files in a user-specific directory
+
+def user_file_directory_path(instance, filename):
+  return f"uploads/user_{instance.user.username}/{filename}"
 
 class UserFile(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
   filename = models.CharField(max_length=100)
-  file = models.FileField(upload_to=user_file_path, max_length=255)  # Store files in a user-specific directory
+  file = models.FileField(storage=storages["s3"], upload_to=user_file_directory_path,max_length=255)
   last_accessed = models.DateTimeField(auto_now=True)
   class Meta:
     constraints = [

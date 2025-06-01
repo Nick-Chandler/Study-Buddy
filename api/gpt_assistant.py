@@ -36,21 +36,21 @@ def run_assistant(user_id, thread_id, user_input, filename=None):
   print("Response received:", response)
   return response
 
-def prepare_file(user_id, filename):
-  try:
-    # Query the UserFile model for the file
-    user_file = UserFile.objects.get(filename=filename, user_id=user_id)
+# def prepare_file(user_id, filename):
+#   try:
+#     # Query the UserFile model for the file
+#     user_file = UserFile.objects.get(filename=filename, user_id=user_id)
     
-    # Construct the full file path
-    file_path = os.path.join(settings.MEDIA_ROOT, user_file.file.name)
+#     # Construct the full file path
+#     file_path = os.path.join(settings.MEDIA_ROOT, user_file.file.name)
     
-    # Open and return the file
-    with open(file_path, 'rb') as f:
-        file_data = f.read()
-    return file_data
-  except UserFile.DoesNotExist:
-      print(f"File with filename '{filename}' not found for user ID {user_id}.")
-      return None
-  except Exception as e:
-      print(f"An error occurred while accessing the file: {e}")
-      return None
+#     # Open and return the file
+#     with open(file_path, 'rb') as f:
+#         file_data = f.read()
+#     return file_data
+#   except UserFile.DoesNotExist:
+#       print(f"File with filename '{filename}' not found for user ID {user_id}.")
+#       return None
+#   except Exception as e:
+#       print(f"An error occurred while accessing the file: {e}")
+#       return None
