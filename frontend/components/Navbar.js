@@ -7,15 +7,19 @@ import { useTheme } from './ThemeProvider'
 
 export default function Navbar() {
 
-  const { user, login, logout, activeMessages } = useAuth()
+  const { user, login, logout, loggedIn, activeMessages } = useAuth()
   const { theme } = useTheme()
-  let loggedIn = (user !== null && user !== undefined && user.user !== null && user.user !== undefined)
   console.log("Navbar - User: ", user)
   console.log("Navbar - Active Messages: ", activeMessages)
 
 
   useEffect(() => {
+    if (!loggedIn) {
+      console.log("Navbar - No user found")
+    }
     console.log("Navbar - User: ", user)
+    console.log("Navbar - User.username: ", user?.username)
+    console.log("Logged In: ", loggedIn)
   }, []);
 
 
@@ -23,7 +27,7 @@ export default function Navbar() {
     <nav className={`${Styles.navbar} ${theme === 'light' ? Styles.lightTheme : null}`}>
       <div className={Styles.container}>
         <div className={Styles.placeholder}>
-          {user?.user?.username || 'Guest'}
+          {loggedIn ? user?.user?.username : 'Guest'}
         </div>
         <h1 className={Styles.title}>Study Buddy</h1>
           {loggedIn ? (<LoggedInAccount />) :

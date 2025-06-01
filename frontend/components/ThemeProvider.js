@@ -20,7 +20,7 @@ export function ThemeProvider({ children }) {
       navbar.classList.add('light-theme');
       navbar.classList.remove('dark-theme');
     } 
-    else {
+    else if (navbar && navbar.classList.contains('light-theme')) {
       navbar.classList.remove('light-theme');
       navbar.classList.add('dark-theme');
     }

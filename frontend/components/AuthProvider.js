@@ -10,6 +10,7 @@ export function AuthProvider({ children }) {
   console.log("AuthProvider - Rendered");
   
   const [user, setUser] = useState({});
+  const [loggedIn, setLoggedIn] = useState(false);
   const [activeMessages, setActiveMessages] = useState([]);
   const [threads, setThreads] = useState([]);
   const [activeThread, setActiveThread] = useState(threads[0]?.thread_id || 0); // Initialize activeThread to first thread or 0 if none
@@ -30,7 +31,7 @@ export function AuthProvider({ children }) {
     const tokenId = generateUniqueId();
     const token = {
       id: tokenId,
-      user: user.user.id,
+      user: user.id,
       lastAccess: new Date().getTime(),
     };
     localStorage.setItem("loginToken", JSON.stringify(token));
@@ -70,10 +71,14 @@ export function AuthProvider({ children }) {
 
 
   useEffect(() => {
-    console.log("User Changed: ", user);
-    if (!user || user === null || user === undefined || user == {}) return;
+    if(!user || Object.keys(user).length === 0)
+      return
+    console.log("User Changed: ", user)
+    createLoginToken(user);
+    if (!user || user === null || user === undefined) return;
     console.log("Context - Setting Threads for User", user);
     getUserThreads(user?.user?.id || []);
+    setLoggedIn(true);
   }, [user]);
 
   
@@ -82,7 +87,6 @@ export function AuthProvider({ children }) {
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData)); // Save user data to localStorage
     console.log("Context - User on Load", userData);
-    createLoginToken(userData);
   };
   
   const logout = () => {
@@ -159,6 +163,7 @@ export function AuthProvider({ children }) {
         activeThread,
         activeMessages,
         threads,
+        loggedIn,
         setActiveThread,
         setActiveMessages,
         addMessage,

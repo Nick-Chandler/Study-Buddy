@@ -12,7 +12,8 @@ class Command(BaseCommand):
     try:
       user = User.objects.get(username=username)
       user_files = UserFile.objects.filter(user=user)
+      print(f"Found {user_files.count()} files for user '{username}':")
       for user_file in user_files:
-        print(f"User: {user.username}, File: {user_file.file_name}, Size: {user_file.file_size} bytes")
+        print(f"User: {user.username}, File: {user_file.filename}, Size: {user_file.file.size} bytes")
     except Exception as e:
       raise CommandError(f"An error occurred: {e}")
