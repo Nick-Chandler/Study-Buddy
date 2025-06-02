@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import Styles from '../styles/Workspace.module.css';
+import Styles from '../styles/NewWorkspace.module.css'
 import FileView from './FileView';
+import UploadPrompt from '../components/UploadPrompt';
 import { useAuth } from './AuthProvider';
 import { useTheme } from './ThemeProvider';
 
@@ -57,20 +58,11 @@ export default function Workspace() {
   }
 
   return (
-    <section className={`${Styles.workspace} ${theme==='light' ? Styles.lightTheme : null}`}>
-      <h1>Workspace</h1>
-      <label className={Styles.uploadbtn}>
-        Upload
-        <input
-          type="file"
-          accept="application/pdf" // Restrict file selection to PDFs
-          style={{ display: 'none' }} // Hide the default file input
-          onChange={handleFileChange} // Handle file selection
-        />
-      </label>
+    <div className={Styles.workspace}>
+      
       <div className={`${Styles.content}`}>
-        <FileView file={fileUrl} /> {/* Pass the file URL as a prop */}
+        {fileUrl ? <FileView file={fileUrl} /> : <UploadPrompt handleFileChange={handleFileChange} />}
       </div>
-    </section>
+    </div>
   );
 }

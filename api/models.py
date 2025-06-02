@@ -49,18 +49,17 @@ class OpenAIThread(models.Model):
         self.save()
         print(f"Thread renamed to {self.name}")
     
-    def get_threads_for_user(user_id, name_list=False):
+    def get_threads_for_user(user_id, name_list=False, print_threads=False):
       user = User.objects.get(id=user_id)
       if not name_list:
         return OpenAIThread.objects.filter(user_id=user_id).order_by('-last_accessed')
       else:
-        print(f"Fetching threads for user {user_id} with name_list=True")
+        # print(f"Fetching threads for user {user_id} with name_list=True")
         threads = OpenAIThread.objects.filter(user=user).order_by('-last_accessed')
-        for thread in threads:
-          print(f"Thread ID: {thread.thread_id}, Name: {thread.name}, Last Accessed: {thread.last_accessed}")
-        print(f"Threads for user {user_id}: {threads}")
         thread_objs = [{"name": thread.name, "thread_id": thread.thread_id} for thread in threads]
-        print(f"Thread objects for user {user_id}: {thread_objs}")
+        if print_threads:
+          for thread in thread_objs:
+            print(f"Thread ID: {thread['thread_id']}, Name: {thread['name']}")
         return thread_objs
     def delete_thread(self):
         # Delete the thread using the OpenAI API
@@ -68,7 +67,7 @@ class OpenAIThread(models.Model):
         self.delete()
         print(f"Thread {self.thread_id} deleted")
 
-    def get_messages_for_thread(self):
+    def get_messages_for_thread(self, print_messages=False):
       print(f"Starting: Get Messages for Thread...")
       queryset = self.messages.all()
       msgs = []
@@ -80,6 +79,8 @@ class OpenAIThread(models.Model):
           'role': q.role,
           'text': q.content,
         })
+      if print_messages:
+        print(f"thread messages: {msgs}")
       return msgs
 
 class ThreadMessage(models.Model):

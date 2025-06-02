@@ -42,9 +42,11 @@ def assistant(request, user_id, thread_id):
     
 def get_user_thread_list(request, user_id):
     print(f"Fetching thread list for user {user_id}")
-    user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True)
-    print(f"User threads: ", user_threads)
-
+    try:
+        user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=False)
+    except Exception as e:
+        print(f"Error fetching threads for user {user_id}: {e}")
+        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     return JsonResponse(user_threads, safe=False)
 
 def get_user_thread_messages(request, user_id, thread_id):
@@ -54,9 +56,8 @@ def get_user_thread_messages(request, user_id, thread_id):
         return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
     print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
     thread = OpenAIThread.objects.get(thread_id=thread_id)
-    thread_msgs = thread.get_messages_for_thread()
+    thread_msgs = thread.get_messages_for_thread(print_messages=False)
     # thread_msgs = ThreadMessage.objects.filter(thread__thread_id=thread_id).order_by('created_at') 
-    print(f"thread messages: {thread_msgs}")
     return JsonResponse(thread_msgs, safe=False)
 
 

@@ -1,4 +1,4 @@
-import Styles from '../styles/Assistant.module.css'
+import Styles from '../styles/NewAssistant.module.css'
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthProvider'
 import { useTheme } from './ThemeProvider'
@@ -80,7 +80,7 @@ export default function Assistant() {
     }, [activeThread]);
   
   return (
-    <section className={`${Styles.assistant} ${theme==='light' ? Styles.lightTheme : null} `}>
+    <div className={Styles.assistant}>
       <div className={Styles.header}>
         <div className={Styles.placeholder}></div>
         <div className={Styles.titles}>
@@ -96,7 +96,7 @@ export default function Assistant() {
         <MessageList className={Styles.messages} messages={activeMessages} />
       </div>
       <AssistantInput />
-    </section>
+    </div>
   );
 }
 

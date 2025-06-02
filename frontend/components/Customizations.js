@@ -2,9 +2,13 @@ import Styles from '../styles/Customizations.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSun } from '@fortawesome/free-solid-svg-icons'
 import { useTheme } from './ThemeProvider';
+import LayoutButton from './LayoutButton';
+import { useLayout } from './LayoutContext';
+
 
 export default function Customizations() {
   const { theme, setTheme, changeTheme } = useTheme();
+  const { currentLayout } = useLayout();
 
   return (
     <section className={`${Styles.customizations} ${theme==='light' ? Styles.lightTheme : null}`}>
@@ -12,6 +16,8 @@ export default function Customizations() {
       <button className={`${Styles.themeToggle} ${Styles.customizationBtn}`} onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
         <FontAwesomeIcon icon={faSun} />
       </button>
+      <LayoutButton  />
+      <p>Current Layout: {currentLayout}</p>
     </section>
   )
 }

@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import Styles from '../styles/Assistant.module.css'
+import Styles from '../styles/NewAssistant.module.css'
 
 export default function MessageList(props) {
 
