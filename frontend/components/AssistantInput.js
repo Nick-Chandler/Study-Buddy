@@ -1,5 +1,5 @@
 import React from "react";
-import Styles from '../styles/Assistant.module.css'
+import Styles from '../styles/NewAssistant.module.css'
 import { useState, useRef } from 'react'
 import { useAuth } from './AuthProvider'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -43,27 +43,6 @@ export default function AssistantInput(props) {
         name="assistantInput"
         onChange={(e) => setInput(e.target.value)} // Update state on input change
       />
-      {/* <div className={Styles.inputButtons}>
-        <input
-          type="file"
-          id="file"
-          name="file"
-          accept=".png"
-          style={{ display: 'none' }} // Hide the default file input
-        />
-        <label htmlFor="file" className={Styles.fileButton}>
-          <FontAwesomeIcon
-            className={Styles.fileUpload}
-            icon={faArrowUpFromBracket}
-          />
-        </label>
-        <button type="submit">
-          <FontAwesomeIcon
-            className={Styles.upload}
-            icon={faArrowUpFromBracket}
-          />
-        </button>
-      </div> */}
     </form>
   );
 }

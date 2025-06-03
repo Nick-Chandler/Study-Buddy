@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { use, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from './AuthProvider'
 import ReactMarkdown from 'react-markdown'
 import remarkMath from 'remark-math'
@@ -9,26 +10,23 @@ import Styles from '../styles/NewAssistant.module.css'
 export default function MessageList(props) {
 
   const { user, threads, activeThread, activeMessages, setActiveThread, setActiveMessages, addMessage } = useAuth()
+  const [key, setKey] = useState(0)
 
   useEffect(() => {
-    console.log("MessageList Props: ", props.messages)
-  }, [props.messages]);
-
-  useEffect(() => {
-    console.log("MessageList: Active Messages Changed: ", activeMessages)
+    console.log("MessageList - Active Messages: ", activeMessages);
   }, [activeMessages]);
 
 
   return (
     <ul className={Styles.messages}>
-      {props.messages.map((message, index) => (
+      {activeMessages.map((message, index) => (
         <li key={index} className={Styles.message}>
           <div className={Styles[message.role]}>
-            <ReactMarkdown 
-            remarkPlugins={[remarkMath]} 
-            rehypePlugins={[rehypeKatex]}
-            >{message.text}
-            </ReactMarkdown>
+            <ReactMarkdown
+              children={message.text}
+              remarkPlugins={[remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+            />
           </div>
         </li>
       ))}

@@ -81,7 +81,8 @@ export default function Assistant() {
   
   return (
     <div className={Styles.assistant}>
-      <div className={Styles.header}>
+      <AssistantInput />
+      {/* <div className={Styles.header}>
         <div className={Styles.placeholder}></div>
         <div className={Styles.titles}>
           <h1>Assistant</h1>
@@ -91,11 +92,10 @@ export default function Assistant() {
           <RenameButton/>
           <DeleteButton />
         </div>
-      </div>
+      </div> */}
       <div className={Styles.content} ref={assistantRef} >
         <MessageList className={Styles.messages} messages={activeMessages} />
       </div>
-      <AssistantInput />
     </div>
   );
 }

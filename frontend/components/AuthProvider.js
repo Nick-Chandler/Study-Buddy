@@ -121,7 +121,7 @@ export function AuthProvider({ children }) {
         thread_id: obj.thread_id,
       }));
       setThreads(objectArray);
-      setActiveThread(objectArray[0]?.thread_id || 0); // Set active thread to first thread or 0 if none
+      setActiveThread(objectArray[0]?.threadId || 0); // Set active thread to first thread or 0 if none
     } catch (error) {
       console.error("Failed to fetch user Threads:", error);
       return setThreads([]); // Set to empty array on error

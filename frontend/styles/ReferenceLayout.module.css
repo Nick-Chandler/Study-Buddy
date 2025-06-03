@@ -59,10 +59,9 @@
 
 /* Assistant */
 .assistantContainer {
-  background-color: lightblue;
   border: 1px solid black;
   border-radius: 10px;
-  flex: 1;
+  flex: 2;
   display: flex;
   overflow: hidden;
 }

@@ -7,7 +7,7 @@ import { useTheme } from './ThemeProvider'
 
 export default function Navbar() {
 
-  const { user, login, logout, loggedIn, activeMessages } = useAuth()
+  const { user, login, logout, loggedIn, activeMessages, activeThread, threads } = useAuth()
   const { theme } = useTheme()
   console.log("Navbar - User: ", user)
   console.log("Navbar - Active Messages: ", activeMessages)
@@ -22,6 +22,14 @@ export default function Navbar() {
     console.log("Logged In: ", loggedIn)
   }, []);
 
+  function printStates() {
+    console.log("Print States - User: ", user);
+    console.log("Print States - Logged In: ", loggedIn);
+    console.log("Print States - Threads: ", threads);
+    console.log("Print States - Active Thread: ", activeThread);
+    console.log("Print States - Active Messages: ", activeMessages);
+  }
+
 
   return (
     <nav className={`${Styles.navbar} ${theme === 'light' ? Styles.lightTheme : null}`}>
@@ -34,6 +42,7 @@ export default function Navbar() {
             (<Link className={Styles.login} href="/login">
               <button>Login</button>
             </Link>)}
+            <button onClick={printStates}>Print States</button>
       </div>
     </nav>
   )
