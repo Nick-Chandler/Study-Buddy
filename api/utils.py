@@ -170,27 +170,28 @@ def create_new_thread_for_user(user_id: int, name: str):
   return new_thread.thread_id
 
 def get_latest_gpt_response(run, thread_id):
-  # Wait for the run to complete
+  # wait for completion
   while True:
-    run_status = openai.beta.threads.runs.retrieve(
+    run = openai.beta.threads.runs.retrieve(
       thread_id=thread_id,
       run_id=run.id
     )
-    if run_status.status == "completed":
+    if run.status == "completed":
+      print(f"Total tokens used in run: {run.usage.total_tokens}")
       break
-    elif run_status.status in ["failed", "cancelled", "expired"]:
-      raise Exception(f"Run ended with status: {run_status.status}")
-    time.sleep(.25)
+    elif run.status in ["failed", "cancelled", "expired"]:
+      raise Exception(f"Run ended with status: {run.status}")
+    time.sleep(0.25)
 
-  # Get all messages in the thread
+  # fetch messages
   messages = openai.beta.threads.messages.list(thread_id=thread_id)
 
-  # Return the latest assistant message
-  for msg in messages.data:
+  for msg in messages.data:          # newest first
     if msg.role == "assistant":
-      return msg.content[0].text.value
-
-  return None  # In case no assistant message is found
+      for block in msg.content:      # look for text blocks only
+        if block.type == "text":
+          return block.text.value
+  return None
 
 def get_user_thread_list(user_id: int,sort_by_last_accessed:bool=False):
   try:

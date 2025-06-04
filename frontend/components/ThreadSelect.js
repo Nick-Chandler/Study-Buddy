@@ -26,7 +26,7 @@ export default function ThreadSelect() {
       value={activeThread}
     >
       {threads.map((thread, i) => (
-        <option onChange={handleThreadChange} key={i} value={thread.thread_id}>
+        <option onChange={handleThreadChange} key={i} value={thread.threadId}>
           {thread.name}
         </option>
       ))}

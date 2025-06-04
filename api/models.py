@@ -56,10 +56,10 @@ class OpenAIThread(models.Model):
       else:
         # print(f"Fetching threads for user {user_id} with name_list=True")
         threads = OpenAIThread.objects.filter(user=user).order_by('-last_accessed')
-        thread_objs = [{"name": thread.name, "thread_id": thread.thread_id} for thread in threads]
+        thread_objs = [{"name": thread.name, "threadId": thread.thread_id} for thread in threads]
         if print_threads:
           for thread in thread_objs:
-            print(f"Thread ID: {thread['thread_id']}, Name: {thread['name']}")
+            print(f"Thread ID: {thread['threadId']}, Name: {thread['name']}")
         return thread_objs
     def delete_thread(self):
         # Delete the thread using the OpenAI API

@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [activeMessages, setActiveMessages] = useState([]);
   const [threads, setThreads] = useState([]);
-  const [activeThread, setActiveThread] = useState(threads[0]?.thread_id || 0); // Initialize activeThread to first thread or 0 if none
+  const [activeThread, setActiveThread] = useState(threads[0]?.threadId || 0); // Initialize activeThread to first thread or 0 if none
   const router = useRouter();
 
   console.log("AuthProvider - States Generated");
@@ -118,7 +118,7 @@ export function AuthProvider({ children }) {
       console.log(typeof threadArray);
       const objectArray = threadArray.map((obj) => ({
         name: obj.name,
-        thread_id: obj.thread_id,
+        threadId: obj.threadId,
       }));
       setThreads(objectArray);
       setActiveThread(objectArray[0]?.threadId || 0); // Set active thread to first thread or 0 if none
@@ -137,16 +137,17 @@ export function AuthProvider({ children }) {
     setActiveMessages((prevMessages) => [ ...prevMessages, temp_msg]);
   }
   
-  async function getAiResponse(user_id, user_input) {
+  async function getAiResponse(user_id, user_input, fileArray) {
+    console.log("getAiResponse called with user_input: ", user_input);
+    console.log("getAiResponse called with fileArray: ", fileArray);
     const url = `http://localhost:8000/assistant/${user_id}/${activeThread}`
     console.log("Context - Active Thread: ", activeThread)
-    
+    const formData = new FormData()
+    formData.append('user_input', user_input)
+    fileArray.forEach(file => formData.append('files', file))
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ user_input: user_input })
+      body: formData,
     })
 
     const data = await response.json()

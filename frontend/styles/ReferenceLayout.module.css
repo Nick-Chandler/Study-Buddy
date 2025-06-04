@@ -72,6 +72,35 @@
   border: 1px solid black;
   border-radius: 10px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 
+.referencePrompt {
+  flex: 2;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  border: 2px dashed gray;
+  padding: 1rem;
+  gap: 1.5rem;
+}
+
+.referenceHeader {
+  height: 25%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.addReferenceButton {
+  border-radius: 50%;
+  width: 15%;
+  height: 35%;
+}
+
+.addReferenceButton:hover {
+  background-color: #ebebeb;
+}

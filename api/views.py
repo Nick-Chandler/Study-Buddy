@@ -16,21 +16,16 @@ from django.shortcuts import get_object_or_404
 def assistant(request, user_id, thread_id):
 
     if request.method == 'POST':
-        print(f"Assistant User ID: {user_id}, Thread Id: {thread_id}")
-        print("Decoding request body...")
-        body_unicode = request.body.decode('utf-8')
-        print(f"Request body: {body_unicode}")
-        print("Convering to JSON...")
-        body_data = json.loads(body_unicode)
-        print(f"Body data: {body_data}")
-        print("Retrieving user input...")
-        user_input = body_data.get('user_input', '')
+        print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
+        user_input = request.POST.get('user_input', '')
+        file_array = request.FILES.getlist('files')
         print(f"User input: {user_input}")
+        print(f"Files received: {len(file_array)} files")
         thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
         human_message = ThreadMessage.objects.create(thread=thread, role="human", content=user_input)
         try:
             print("Calling assistant function...")
-            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input)
+            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array)
             ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
             print(f"GPT Response: {gpt_response}")
             print(f"Type of GPT Response: {type(gpt_response)}")
