@@ -71,9 +71,7 @@ class OpenAIThread(models.Model):
       print(f"Starting: Get Messages for Thread...")
       queryset = self.messages.all()
       msgs = []
-      print("queryset", queryset)
       for q in queryset:
-        print("q:",q)
         msgs.append({
           'id': q.message_id,
           'role': q.role,

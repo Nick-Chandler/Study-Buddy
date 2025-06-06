@@ -74,6 +74,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: .5rem;
+  padding: .5rem;
 }
 
 
@@ -83,8 +85,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  border: 2px dashed gray;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed gray;
   padding: 1rem;
   gap: 1.5rem;
 }
@@ -92,15 +95,35 @@
 .referenceHeader {
   height: 25%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 0 1rem;
 }
 
-.addReferenceButton {
+.clearReferenceBtn {
+  border-radius: 5px;
+  cursor: pointer;
+  height: 2rem;
+  width: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #cecece;
+  border: none;
+  color: rgb(0, 0, 0);
+}
+
+.addReferenceBtn {
   border-radius: 50%;
-  width: 15%;
-  height: 35%;
+  cursor: pointer;
+  height: 3rem;
+  width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
 }
 
-.addReferenceButton:hover {
+.addReferenceBtn:hover {
   background-color: #ebebeb;
 }

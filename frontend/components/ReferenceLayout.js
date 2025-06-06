@@ -24,7 +24,7 @@ export default function ReferenceLayout() {
         <div className={Styles.referenceContainer}>
           <div className={Styles.referenceHeader}>
             <h2 className={Styles.referenceTitle}>Reference</h2>
-            <button className={Styles.clearReferenceButton}
+            <button className={Styles.clearReferenceBtn}
             onClick={() => setReferenceImg(null)}>
             <FontAwesomeIcon icon={faTimes} />
             </button>

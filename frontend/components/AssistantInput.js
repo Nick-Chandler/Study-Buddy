@@ -15,8 +15,8 @@ export default function AssistantInput(props) {
   const [input, setInput] = useState('')
   const [fileThumbnails, setFileThumbnails] = useState([]);
   const [fileUploads, setFileUploads] = useState([]);
-  const {user, activeThread, activeMessages, setActiveMessages, addMessage, getAiResponse} = useAuth()
-  const { referenceImg, setReferenceImg } = useLayout();
+  const {user, activeThread, activeMessages, setActiveMessages, addMessage} = useAuth()
+  const { referenceImg, setReferenceImg, getAiResponse} = useLayout();
 
 // Function to send a message to the assistant
   async function talkToAssistant(e) {

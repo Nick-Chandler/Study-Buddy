@@ -9,12 +9,15 @@ class Command(BaseCommand):
   def handle(self, *args, **kwargs):
 
     try:
-      assistant_id = api.models.OpenAIAssistant.objects.all().first().assistant_id
+      assistant = api.models.OpenAIAssistant.objects.filter(model="gpt-4o-mini").first()
+      name = "General Knowledge Assistant - 4o Mini"
+      instructions = assistant.instructions
+      assistant_id = assistant.assistant_id
       openai.beta.assistants.update(
       assistant_id=assistant_id,
-      instructions="You are a general chatbot specializing in homework and study assistance. Be concise and clear in your responses. If you don't know the answer, say 'I don't know'.",
-      name="Homework Assistant",
-      tools=[{'type': 'file_search'}, {'type': 'code_interpreter'}],
+      instructions=instructions,
+      name=name,
+      tools=[{'type': 'file_search'}],
     )
       print(f"Assistant {assistant_id} updated successfully.")
     except Exception as e:

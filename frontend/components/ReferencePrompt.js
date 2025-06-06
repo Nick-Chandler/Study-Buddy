@@ -16,8 +16,17 @@ export default function ReferencePrompt() {
 
   return (
     <div className={Styles.referencePrompt}>
-      <h2 className={Styles.referenceHeader}>Reference</h2>
-      <input type="file" onChange={handleReferenceUpload} />
+      {/* Hidden file input */}
+      <input
+        id="referenceUpload"
+        type="file"
+        style={{ display: 'none' }} // Hide the default input
+        onChange={handleReferenceUpload}
+      />
+      {/* Custom-styled label */}
+      <label htmlFor="referenceUpload" className={Styles.addReferenceBtn}>
+        <FontAwesomeIcon icon={faPlus} />
+      </label>
     </div>
-  )
+  );
 }

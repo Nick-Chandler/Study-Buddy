@@ -137,23 +137,6 @@ export function AuthProvider({ children }) {
     setActiveMessages((prevMessages) => [ ...prevMessages, temp_msg]);
   }
   
-  async function getAiResponse(user_id, user_input, fileArray) {
-    console.log("getAiResponse called with user_input: ", user_input);
-    console.log("getAiResponse called with fileArray: ", fileArray);
-    const url = `http://localhost:8000/assistant/${user_id}/${activeThread}`
-    console.log("Context - Active Thread: ", activeThread)
-    const formData = new FormData()
-    formData.append('user_input', user_input)
-    fileArray.forEach(file => formData.append('files', file))
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
-    })
-
-    const data = await response.json()
-    console.log("Assistant - Response: ", data)
-    return data.message
-}
 
 
 
@@ -171,7 +154,6 @@ export function AuthProvider({ children }) {
         login,
         logout,
         getUserThreads,
-        getAiResponse,
         validateLoginToken,
         setThreads,
       }}

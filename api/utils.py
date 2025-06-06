@@ -11,7 +11,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 import openai, time
 
-assistant_id = "asst_ceOd9c6y55I9vToqnkJKUnj7"
 client = openai.OpenAI()
 
 
@@ -177,11 +176,20 @@ def get_latest_gpt_response(run, thread_id):
       run_id=run.id
     )
     if run.status == "completed":
-      print(f"Total tokens used in run: {run.usage.total_tokens}")
-      break
+      try:
+        usage = run.usage
+        input_tokens = usage.prompt_tokens
+        output_tokens = usage.completion_tokens
+        total_tokens = usage.total_tokens
+        print(f"Run completed with {input_tokens} input tokens, {output_tokens} output tokens, total {total_tokens} tokens.")
+        print_costs_for_all_models(input_tokens, output_tokens)
+        break
+      except Exception as e:
+        print(f"Error retrieving usage information: {e}")
+        raise Exception("Run completed but usage information is missing or malformed.")
     elif run.status in ["failed", "cancelled", "expired"]:
       raise Exception(f"Run ended with status: {run.status}")
-    time.sleep(0.25)
+    time.sleep(0.5)
 
   # fetch messages
   messages = openai.beta.threads.messages.list(thread_id=thread_id)
@@ -277,12 +285,54 @@ def delete_thread(user_id: int, thread_id: str):
     print(f"Error deleting thread: {e}")
     raise
 
-# def generate_incremented_filename():
-#   last_file = UserFile.objects.order_by('-id').first()
-#   if last_file and last_file.name.startswith('file-'):
-#     try:
-#       last_number = int(last_file.name.split('-')[1])
-#       return f'file-{last_number + 1}'
-#     except (IndexError, ValueError):
-#       pass
-#   return 'file-1'  
+def calculate_gpt_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+  pricing = {
+    "gpt-4o": {
+      "input": 0.0025,
+      "output": 0.01
+    },
+    "gpt-4o-mini": {
+      "input": 0.00015,
+      "output": 0.0006
+    },
+    "gpt-4.1": {
+      "input": 0.01,
+      "output": 0.03
+    },
+    "gpt-4.1-mini": {
+      "input": 0.0015,
+      "output": 0.002
+    }
+  }
+
+  if model not in pricing:
+    raise ValueError(f"Unknown model: {model}")
+
+  rate = pricing[model]
+  cost = (input_tokens * rate["input"] + output_tokens * rate["output"]) / 1000
+  print(round(cost, 6))
+
+def print_costs_for_all_models(input_tokens: int, output_tokens: int):
+  pricing = {
+    "gpt-4o": {
+      "input": 0.0025,
+      "output": 0.01
+    },
+    "gpt-4o-mini": {
+      "input": 0.00015,
+      "output": 0.0006
+    },
+    "gpt-4.1": {
+      "input": 0.01,
+      "output": 0.03
+    },
+    "gpt-4.1-mini": {
+      "input": 0.0015,
+      "output": 0.002
+    }
+  }
+
+  for model, rate in pricing.items():
+    cost = (input_tokens * rate["input"] + output_tokens * rate["output"]) / 1000
+    print(f"{model}: ${round(cost, 6)}")
+

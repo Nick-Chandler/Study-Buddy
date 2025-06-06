@@ -7,9 +7,10 @@ from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, OpenAIThreadSerializer, UserFileSerializer
-from api.models import OpenAIThread, ThreadMessage, UserFile
+from api.models import OpenAIAssistant, OpenAIThread, ThreadMessage, UserFile
 from api import gpt_assistant, utils
 from django.shortcuts import get_object_or_404
+from django.db import IntegrityError
 
     
 @csrf_exempt
@@ -19,17 +20,18 @@ def assistant(request, user_id, thread_id):
         print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
         user_input = request.POST.get('user_input', '')
         file_array = request.FILES.getlist('files')
+        documents = request.FILES.getlist('document')
+
         print(f"User input: {user_input}")
         print(f"Files received: {len(file_array)} files")
         thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
         human_message = ThreadMessage.objects.create(thread=thread, role="human", content=user_input)
         try:
+            assistant_id = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first().assistant_id
             print("Calling assistant function...")
-            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array)
+            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array, documents, assistant_id=assistant_id)
             ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
             print(f"GPT Response: {gpt_response}")
-            print(f"Type of GPT Response: {type(gpt_response)}")
-
             return JsonResponse({"message": gpt_response,
                                 "status": "success"}, status=200)
         except Exception as e:
@@ -57,26 +59,26 @@ def get_user_thread_messages(request, user_id, thread_id):
 
 
 @csrf_exempt
-def upload_file(request, user_id):
+def upload_document(request, user_id):
     if request.method == 'POST':
         try:
             print(f"Uploading file for user {user_id}")
-            file = request.FILES.get('file')
-            filename = request.POST.get('filename')
-            if not file or not filename:
+            doc = request.FILES.get('doc')
+            docname = request.POST.get('docname')
+            if not doc or not docname:
                 return JsonResponse({"error": "No file found", "status": "failure"}, status=400)
 
-            print(f"File received: Filename: {filename}")
+            print(f"File received: Filename: {docname}")
             
             try:
-                file_instance = UserFile.objects.create(user_id=user_id, filename=filename, file=file)
+                file_instance = UserFile.objects.create(user_id=user_id, filename=docname, file=doc)
                 print("UserFile instance created successfully")
-            except Exception as e:
-                print(f"Error creating UserFile instance: {e}")
-                return JsonResponse({"error": "Failed to create file instance", "status": "failure"}, status=500)
+            except IntegrityError as e:
+                print(f"File with this name already exists: {e}")
+                return JsonResponse({"message": "File with this name already exists", "status": "failure"}, status=409)
             return JsonResponse({"message": "File uploaded successfully",
                                   "status": "success",
-                                  "filename": filename}, status=201)
+                                  "filename": docname}, status=201)
         except Exception as e:
             print(f"Error uploading file for user {user_id}: {e}")
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)

@@ -35,14 +35,13 @@ export default function Navbar() {
     <nav className={`${Styles.navbar} ${theme === 'light' ? Styles.lightTheme : null}`}>
       <div className={Styles.container}>
         <div className={Styles.placeholder}>
-          {loggedIn ? user?.user?.username : 'Guest'}
+          {user?.username ?? user?.user?.username ?? "Guest"}
         </div>
         <h1 className={Styles.title}>Study Buddy</h1>
           {loggedIn ? (<LoggedInAccount />) :
             (<Link className={Styles.login} href="/login">
               <button>Login</button>
             </Link>)}
-            <button onClick={printStates}>Print States</button>
       </div>
     </nav>
   )
