@@ -10,7 +10,7 @@ import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons'
 
   
 
-export default function AssistantInput(props) {
+export default function AssistantInput({ scrollToBottom }) {
 
   const [input, setInput] = useState('')
   const [fileThumbnails, setFileThumbnails] = useState([]);
@@ -33,13 +33,14 @@ export default function AssistantInput(props) {
     if (!userId) return
     // Add Human Message to active Messages
     let temp_input = input
-    addMessage(temp_input, "human")
+    addMessage(temp_input, "user")
+    scrollToBottom()
     setInput('') // Clear input field
     console.log("Calling getAiResponse with User ID: ", userId, " and Active Thread: ", activeThread)
     console.log("Calling getAiResponse with Input: ", temp_input)
     let response = await getAiResponse(userId, temp_input, fileUploads)
     // Add Assistant Message to active Messages
-    addMessage(response, "ai") // Add Assistant Message to active Messages
+    addMessage(response, "assistant") // Add Assistant Message to active Messages
   }
 
   function handleFileUpload(e) {

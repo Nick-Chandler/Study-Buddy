@@ -1,5 +1,5 @@
 import openai, time, os
-from api.models import OpenAIThread, User, UserFile
+from api.models import OpenAIAssistant, OpenAIThread, User, UserFile
 from django.core.exceptions import ObjectDoesNotExist
 from api import utils, models
 from django.conf import settings
@@ -8,7 +8,10 @@ import io
 
 
 def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assistant_id = "asst_ceOd9c6y55I9vToqnkJKUnj7", max_prompt_tokens=20000):
+
   print("Starting run_assistant routine...")
+  assistant = OpenAIAssistant.objects.get(assistant_id=assistant_id)
+  print("Using Assistant:", assistant.name, "with ID:", assistant.assistant_id, "and model:", assistant.model)
   print("thread_id", thread_id)
 
   if thread_id is None:
@@ -34,12 +37,19 @@ def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assist
 
   print("Creating OpenAI message...")
   try:
-    openai.beta.threads.messages.create(
+    response = openai.beta.threads.messages.create(
       thread_id=thread_id,
       role="user",
       content=content,
       **kwargs
     )
+
+    if response.attachments and len(response.attachments) > 0:
+      print("Document successfully attached!")
+      for attachment in response.attachments:
+        print("Attachment:", attachment)
+    else:
+      print("No document found in message.")
   except Exception as e:
     print("InvalidRequestError:", e)
     raise ValueError(f"Invalid request: {e}. Please check your input and try again.")
@@ -56,7 +66,7 @@ def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assist
     print("InvalidRequestError:", e)
     raise ValueError(f"Invalid request: {e}. Please check your input and try again.")
   print("Retrieving response...")
-  response = utils.get_latest_gpt_response(run, thread_id)
+  response = utils.get_latest_gpt_response(run, thread_id, print_all_messages=True)
   print("Response received:", response)
   return response
 
@@ -126,7 +136,7 @@ def prepare_openai_attachments(documents):
     except Exception as e:
       print("Error creating OpenAI file:", e)
       raise ValueError(f"Error creating OpenAI file: {e}. Please check your input and try again.")
-
+    wait_for_file_processed(openai_file.id)
     print("Creating Attachment for file:", f.name)
     new_attachment = {
       "file_id": openai_file.id,
@@ -136,3 +146,23 @@ def prepare_openai_attachments(documents):
     print("Attachments so far:", attachments)
   return attachments
 
+def wait_for_file_processed(file_id, timeout=30, poll_interval=.5):
+  """
+  Polls the OpenAI API until the file with file_id is processed or timeout is reached.
+  Returns True if processed, raises an Exception otherwise.
+  """
+  start_time = time.time()
+  while True:
+    file_status = openai.files.retrieve(file_id)
+    status = getattr(file_status, "status", None) or file_status.get("status")
+    print(f"Polling file {file_id}: status={status}")
+    if status == "processed":
+      print(f"File {file_id} is processed and ready.")
+      end_time = time.time()
+      print(f"File {file_id} processed in {end_time - start_time:.2f} seconds.")
+      return True
+    if status == "failed":
+      raise Exception(f"File {file_id} processing failed.")
+    if time.time() - start_time > timeout:
+      raise TimeoutError(f"Timeout: File {file_id} was not processed within {timeout} seconds.")
+    time.sleep(poll_interval)

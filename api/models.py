@@ -38,7 +38,7 @@ class OpenAIThread(models.Model):
     name = models.CharField(max_length=255)
     thread_id = models.CharField(max_length=100, unique=True, default=generate_thread, primary_key=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    last_accessed = models.DateTimeField(default=timezone.now)
+    last_accessed = models.DateTimeField(auto_now=True)
 
 
     def __str__(self):
@@ -56,10 +56,10 @@ class OpenAIThread(models.Model):
       else:
         # print(f"Fetching threads for user {user_id} with name_list=True")
         threads = OpenAIThread.objects.filter(user=user).order_by('-last_accessed')
-        thread_objs = [{"name": thread.name, "threadId": thread.thread_id} for thread in threads]
+        thread_objs = [{"name": thread.name, "last_accessed": thread.last_accessed, "threadId": thread.thread_id} for thread in threads]
         if print_threads:
           for thread in thread_objs:
-            print(f"Thread ID: {thread['threadId']}, Name: {thread['name']}")
+            print(f"Name: {thread['name']}, Last Accessed: {thread['last_accessed']}, Thread ID: {thread['threadId']},")
         return thread_objs
     def delete_thread(self):
         # Delete the thread using the OpenAI API

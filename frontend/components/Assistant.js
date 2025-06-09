@@ -5,7 +5,7 @@ import { useTheme } from './ThemeProvider'
 import AssistantInput from './AssistantInput'
 import RenameButton from './RenameButton'
 import DeleteButton from './DeleteButton'
-
+import AIChat from './AIChat'
 import MessageList from './MessageList'
 
 
@@ -28,8 +28,7 @@ export default function Assistant() {
   }, [user]);
  
   useEffect(() => {
-    console.log("Active Messages Changed: ", activeMessages)
-    assistantRef?.current && scrollToBottom(assistantRef);
+    console.log("Active Messages Changed: ", activeMessages);
   }, [activeMessages]);
 
   async function getUserThreadMessages(userId, activeThread) {
@@ -81,9 +80,10 @@ export default function Assistant() {
   
   return (
     <div className={Styles.assistant}>
-      <AssistantInput />
+      <AssistantInput scrollToBottom={scrollToBottom}/>
       <div className={Styles.content} ref={assistantRef} >
-        <MessageList className={Styles.messages} messages={activeMessages} />
+        {/* <MessageList className={Styles.messages} messages={activeMessages} /> */}
+        <AIChat activeMessages={activeMessages} />
       </div>
     </div>
   );
