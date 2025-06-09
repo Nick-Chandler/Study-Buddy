@@ -8,7 +8,8 @@ import Styles from '../styles/NewAssistant.module.css'
 
 // Added function to style citations
 function styleCitations(text) {
-  return text.replace(/(【[\d:†a-zA-Z_.-]+】)/g, '<span class="citation">$1</span>');
+  // return text.replace(/【[\d:†a-zA-Z_.-]+】/g, '<span class="citation">$&</span>');
+  return text.replace(/【[\d:†a-zA-Z_.-]+】/g, '');
 }
 
 export default function Message({ content }) {

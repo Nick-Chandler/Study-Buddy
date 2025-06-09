@@ -5,7 +5,6 @@ import { useTheme } from './ThemeProvider'
 import AssistantInput from './AssistantInput'
 import RenameButton from './RenameButton'
 import DeleteButton from './DeleteButton'
-import AIChat from './AIChat'
 import MessageList from './MessageList'
 
 
@@ -82,8 +81,7 @@ export default function Assistant() {
     <div className={Styles.assistant}>
       <AssistantInput scrollToBottom={scrollToBottom}/>
       <div className={Styles.content} ref={assistantRef} >
-        {/* <MessageList className={Styles.messages} messages={activeMessages} /> */}
-        <AIChat activeMessages={activeMessages} />
+        <MessageList className={Styles.messages} messages={activeMessages} />
       </div>
     </div>
   );
