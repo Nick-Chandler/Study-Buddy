@@ -1,184 +1,162 @@
 from django.contrib.auth.models import User
-from langchain_openai import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from api.models import User, Conversation, Message
-from .serializers import ConversationSerializer
-
-class History:
-
-  def __init__(self):
-    self.messages = []
-
-  def append(self, message):
-    self.messages.append(message)
-  def add_messages(self, messages: list):
-      """Add a list of messages to the store"""
-      self.messages.extend(messages)
-  
-  def __str__(self):
-    return f"History({self.messages})"
-
-def init_llm(model="gpt-4o-mini", model_provider="openai"):
-  return ChatOpenAI(model_name="gpt-4o-mini")
-
-def init_memory(cid):
-  print("Retrieving conversation...")
-  try:
-    c = Conversation.objects.get(conversation_id=cid)
-  except Conversation.DoesNotExist:
-    print("No conversation found with the given ID.")
-    print("Creating new conversation...")
-    h = History()
-    print(h)
-    return h
-
-  print("ordering messages by timestamp...")
-  messages = c.messages.order_by("timestamp")
-
-  h = History()
-
-  for msg in messages:
-    if msg.role == "human":
-      h.append(HumanMessage(content=msg.content))
-    elif msg.role == "ai":
-      h.append(AIMessage(content=msg.content))
-  return h
+# from langchain_openai import ChatOpenAI
+from api.models import User, Conversation, OpenAIAssistant, OpenAIThread,User
+from api.serializers import OpenAIThreadSerializer
+from django.core.exceptions import ObjectDoesNotExist
+import openai, time
 
 
-def form_prompt(user_input, history):
-  
-  prompt_template = ChatPromptTemplate.from_messages(
-      [
-          SystemMessage(
-            content="You are a homework assistant."
-          ),
-          MessagesPlaceholder(variable_name="messages"),
-            ("human", "{user_input}"),
-      ]
-  )
-
-  return prompt_template
-
-
-def store_message(human_msg, ai_msg, cid):
-    print(f"Storing messages for conversation ID: {cid}")
-    convo = Conversation.objects.get(conversation_id=cid)
-    print(f"Got conversation: {convo}")
-    Message.objects.create(
-        conversation=convo,
-        role="human",
-        content=human_msg
-    )
-    print(f"Created message for user: {human_msg}")
-
-    Message.objects.create(
-        conversation=convo,
-        role="ai",
-        content=ai_msg
-    )
-    print(f"Created message for AI: {ai_msg}")
-
-    print("Messages stored successfully")
-  
-def form_chain(prompt_template, model, history, user_input):
-  prompt_template.invoke({
-    "messages": history,
-    "user_input": user_input,
-  })
-  return form_chain
-
-def build_runnable(chain):
-  try:
-    chain_with_memory = RunnableWithMessageHistory(
-    chain,
-    init_memory,
-    input_messages_key="user_input",
-    history_messages_key="messages",
-    )
-  except Exception as e:
-    print(f"Error building runnable: {e}")
-    raise
-  return chain_with_memory
-
-def update_conversation(uid,cid,user_input):
-  # load history
-  print("Loading history...")
-  history = init_memory(cid)
-  # prompt template
-  print("Forming prompt...")
-  prompt = form_prompt(user_input, history)
-  # build llm
-  print("Initializing LLM...")
-  llm = init_llm()
-  # build chain
-  print("Building chain...")
-  chain = prompt | llm
-  # infuse memory
-  print("Infusing memory...")
-  runnable = build_runnable(chain)
-  # run chain
-  print("Running chain...")
-  try:
-    print(f"User input: {user_input}")
-    print(f"cid: {cid}")
-    response = runnable.invoke(
-      {"user_input": user_input},
-      config={"configurable": {"session_id": cid}}
-    ).content
-  except Exception as e:
-    print(f"Error running chain: {e}")
-    raise
-  # store messages
-  print("Storing messages...")
-  print(f"User input: {user_input}")
-  print(f"Response: {response}")
-  print(f"cid: {cid}")
-  store_message(user_input, response, cid)
-  return response
-
-
-def get_user_conversations(user_id):
+def get_user_threads(user_id):
   try:
     # Fetch all conversations for the given user ID
     conversations = Conversation.objects.filter(user_id=user_id)
     
     # Serialize the conversations
-    serializer = ConversationSerializer(conversations, many=True)
+    serializer = OpenAIThreadSerializer(conversations, many=True)
     
     # Return the serialized data as a JSON response
     return {"status": "success", "data": serializer.data}
   except Exception as e:
     return {"status": "failure", "error": str(e)}
+  
 
-def user_id_by_cid(cid):
-  print(f"Fetching user ID for conversation ID: {cid}")
-  try:
-    # Fetch the conversation by its ID
-    conversation = Conversation.objects.get(conversation_id=cid)
-    
-    # Return the user ID associated with the conversation
-    print(f"Got User ID: {conversation.user.id}")
-    return conversation.user.id
-  except Conversation.DoesNotExist:
-    return None
+def get_latest_gpt_response(run, thread_id, print_all_messages: bool = False):
+  # wait for completion
+  client = openai.OpenAI()
 
-def get_last_user_conversation(user_id):
+  while True:
+    run = client.beta.threads.runs.retrieve(
+      thread_id=thread_id,
+      run_id=run.id
+    )
+    if run.status == "completed":
+      try:
+        usage = run.usage
+        input_tokens = usage.prompt_tokens
+        output_tokens = usage.completion_tokens
+        total_tokens = usage.total_tokens
+        print(f"Run completed with {input_tokens} input tokens, {output_tokens} output tokens, total {total_tokens} tokens.")
+        print_costs_for_all_models(input_tokens, output_tokens)
+        break
+      except Exception as e:
+        print(f"Error retrieving usage information: {e}")
+        raise Exception("Run completed but usage information is missing or malformed.")
+    elif run.status in ["failed", "cancelled", "expired"]:
+      raise Exception(f"Run ended with status: {run.status}")
+    time.sleep(0.5)
+
+  # fetch messages
+  messages = client.beta.threads.messages.list(thread_id=thread_id)
+  message_data = messages.data
+
+  if print_all_messages:
+    print("All messages in the thread:")
+    for msg in message_data:
+      if msg.role == "user":
+        print("User input:", msg.content)
+      elif msg.role == "assistant":
+        for block in msg.content:
+          if block.type == "text":
+            print("Assistant response:", block.text.value)
+
+  for msg in message_data:          
+    if msg.role == "assistant":
+      for block in msg.content:      
+        if block.type == "text":
+          print("Assistant response:", block.text.value)
+          return block.text.value
+  return None
+
+def get_user_thread_list(user_id: int,sort_by_last_accessed:bool=False):
   try:
-    # Fetch the last conversation for the given user ID, ordered by last_accessed
-    conversation = Conversation.objects.filter(user_id=user_id).order_by('-last_accessed').first()
-    print(f"Got last conversation: {conversation}")
-    
-    if conversation:
-      # Serialize the conversation
-      last_accessed_conversation = conversation.conversation_id
-      print(f"Last accessed conversation ID: {last_accessed_conversation}")
-      
-      # Return the serialized data as a JSON response
-      return last_accessed_conversation
-    else:
-      return None
+    user = User.objects.get(id=user_id)
+  except ObjectDoesNotExist:
+    return []
+
+  threads = OpenAIThread.objects.filter(user=user).order_by('-created_at')
+  if sort_by_last_accessed:
+    threads = threads.order_by('-last_accessed')
+  return [
+    {"name": thread.name, "thread_id": thread.thread_id}
+    for thread in threads
+  ]
+
+
+def rename_thread(user_id: int, thread_id: str, new_name: str):
+  try:
+    thread = OpenAIThread.objects.get(user_id=user_id, thread_id=thread_id)
+    thread.name = new_name
+    thread.save()
+    print(f"Thread {thread_id} renamed to {new_name}")
+  except OpenAIThread.DoesNotExist:
+    print(f"Thread {thread_id} not found for user {user_id}")
+    raise ValueError("Thread not found")
   except Exception as e:
-    return {"status": "failure", "error": str(e)}
+    print(f"Error renaming thread: {e}")
+    raise
+
+def delete_thread(user_id: int, thread_id: str):
+  try:
+    thread = OpenAIThread.objects.get(user_id=user_id, thread_id=thread_id)
+    thread_name = thread.name
+    thread.delete()
+    print(f"Thread - {thread_name}, id - {thread_id} deleted for user {user_id}")
+    return thread_name
+  except OpenAIThread.DoesNotExist:
+    print(f"Thread {thread_id} not found for user {user_id}")
+    raise ValueError("Thread not found")
+  except Exception as e:
+    print(f"Error deleting thread: {e}")
+    raise
+
+def calculate_gpt_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+  pricing = {
+    "gpt-4o": {
+      "input": 0.0025,
+      "output": 0.01
+    },
+    "gpt-4o-mini": {
+      "input": 0.00015,
+      "output": 0.0006
+    },
+    "gpt-4.1": {
+      "input": 0.01,
+      "output": 0.03
+    },
+    "gpt-4.1-mini": {
+      "input": 0.0015,
+      "output": 0.002
+    }
+  }
+
+  if model not in pricing:
+    raise ValueError(f"Unknown model: {model}")
+
+  rate = pricing[model]
+  cost = (input_tokens * rate["input"] + output_tokens * rate["output"]) / 1000
+  print(round(cost, 6))
+
+def print_costs_for_all_models(input_tokens: int, output_tokens: int):
+  pricing = {
+    "gpt-4o": {
+      "input": 0.0025,
+      "output": 0.01
+    },
+    "gpt-4o-mini": {
+      "input": 0.00015,
+      "output": 0.0006
+    },
+    "gpt-4.1": {
+      "input": 0.01,
+      "output": 0.03
+    },
+    "gpt-4.1-mini": {
+      "input": 0.0015,
+      "output": 0.002
+    }
+  }
+
+  for model, rate in pricing.items():
+    cost = (input_tokens * rate["input"] + output_tokens * rate["output"]) / 1000
+    print(f"{model}: ${round(cost, 6)}")
+

@@ -1,0 +1,129 @@
+.layout {
+  background-color: white;
+  height: 100%;
+  width: 100%;
+  padding: 2rem 2rem 4rem 2rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  color: black;
+  overflow: scroll;
+}
+
+/* Left Section */
+
+.left {
+  max-height: 100%;
+  background-color: #f0f0f0;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  border-radius: 10px;
+}
+
+/* Workspace */
+.workspaceHeader {
+  border: 1px solid black;
+  padding: 0.75rem;
+  background-color: #d0d0d0;
+  border-radius: 10px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.workspaceContainer {
+  background-color: #d0d0d0;
+  flex: 12;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Right Section */
+
+.right {
+  background-color: #e0e0e0;
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  overflow: hidden;
+}
+
+.rightHeader {
+  padding: 0.75rem;
+  background-color: #d0d0d0;
+  border-radius: 10px;
+}
+
+/* Assistant */
+.assistantContainer {
+  border: 1px solid black;
+  border-radius: 10px;
+  flex: 2;
+  display: flex;
+  overflow: hidden;
+}
+
+
+/* Reference */
+.referenceContainer {
+  border: 1px solid black;
+  border-radius: 10px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .5rem;
+}
+
+
+.referencePrompt {
+  flex: 2;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed gray;
+  padding: 1rem;
+  gap: 1.5rem;
+}
+
+.referenceHeader {
+  height: 25%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+}
+
+.clearReferenceBtn {
+  border-radius: 5px;
+  cursor: pointer;
+  height: 2rem;
+  width: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #cecece;
+  border: none;
+  color: rgb(0, 0, 0);
+}
+
+.addReferenceBtn {
+  border-radius: 50%;
+  cursor: pointer;
+  height: 3rem;
+  width: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+}
+
+.addReferenceBtn:hover {
+  background-color: #ebebeb;
+}

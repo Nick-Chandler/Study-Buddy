@@ -1,4 +1,19 @@
 .customizations {
   flex: 1;
-  background-color: #BAF2E9;
+  display: flex;
+  gap: 2rem;
+  flex-direction: column;
+  background-color: #2d2d2de1;
+  align-items: center;
 }
+
+.lightTheme {
+  background-color: antiquewhite;
+  color: black;
+}
+
+.customizationBtn {
+  width: 50%;
+  height: 3rem;
+}
+

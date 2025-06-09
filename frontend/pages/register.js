@@ -28,6 +28,8 @@ export default function register() {
 
       const data = await response.json();
       if (response.ok) {
+        console.log("Registration successful:", data);
+        console.log("Logging in user:", data.user);
         login(data.user); // Assuming the response contains user data
         router.push('/'); // Redirect to home page after successful registration
         setSuccess(data.message); // Display success message
@@ -35,6 +37,7 @@ export default function register() {
         setError(data.error || 'Registration failed');
       }
     } catch (err) {
+      console.error('Registration error:', err);
       setError('An error occurred. Please try again.');
     }
   };

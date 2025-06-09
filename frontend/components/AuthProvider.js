@@ -1,73 +1,161 @@
 // context/AuthContext.js
-import { createContext, useState, useContext, useEffect, use } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import Router, { useRouter } from "next/router";
+import { useRef } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [conversations, setConversations] = useState([]);
-  const [activeConversation, setActiveConversation] = useState();
+
+  console.log("AuthProvider - Rendered");
+  
+  const [user, setUser] = useState({});
+  const [loggedIn, setLoggedIn] = useState(false);
   const [activeMessages, setActiveMessages] = useState([]);
+  const [threads, setThreads] = useState([]);
+  const [activeThread, setActiveThread] = useState(threads[0]?.threadId || 0); // Initialize activeThread to first thread or 0 if none
   const router = useRouter();
 
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser !== "undefined") {
-      setUser(storedUser); // Restore user data from localStorage
-    }
-    login(storedUser); // Call login function with stored user data
-    console.log("Context - User on Load: ", user);
-  }, []);
+  console.log("AuthProvider - States Generated");
 
-  useEffect(() => {
-    console.log("Logged in user: ", user);
-    if (user) {
-      setActiveConversation(user.lastConversation);
-      console.log("Conversations:", conversations);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    console.log("Context - Active Conversation on Change: ",activeConversation);
-    let newMessages = [];
-    for (const c of conversations) {
-      if (c.conversation_id === activeConversation) {
-          newMessages = c.messages; // Return the messages array
-          console.log("Context - Active Messages: ", c.messages);
-      }
-    }; 
-    setActiveMessages(newMessages);
-    }, [activeConversation]);
-
-  function addMessage(msg) {
-    setActiveMessages((messages) => [...messages, msg]);
+  function generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 11)
   }
 
-  const login = (userData) => {
-    console.log("Logging in user: ", userData);
-    setUser(userData);
-    setConversations(userData.conversations.data); // Set conversations from user data
-    localStorage.setItem("user", JSON.stringify(userData)); // Save user data to localStorage
-  };
+  useEffect(() => {
+    console.log("Checking for Login Token");
+    validateLoginToken()
+    }, []);
 
+  function createLoginToken(user) {
+    const tokenId = generateUniqueId();
+    const token = {
+      id: tokenId,
+      user: user.id,
+      lastAccess: new Date().getTime(),
+    };
+    localStorage.setItem("loginToken", JSON.stringify(token));
+    
+    return token;
+  }
+
+  function validateLoginToken() {
+    if (!localStorage.getItem("loginToken")) {
+      console.log("Token Validation - No Login Token Found")
+      return false;
+    }
+
+    let userData = JSON.parse(localStorage.getItem("user"));
+    if (!userData) {
+      console.log("Token Validation - No User Data Found");
+      return false;
+    }
+    const token = JSON.parse(localStorage.getItem("loginToken"));
+    console.log("Token Validation - Login Token Found: ", token);
+    const lastAccess = token.lastAccess
+    const oneWeekMs = 7 * 24 * 60 * 60 * 1000
+    const now = Date.now()
+    console.log("Token Validation - Current Time: ", now);
+    console.log("Token Validation - Last Access Time: ", lastAccess);
+    if (now - lastAccess > oneWeekMs) {
+      console.log("Token Validation - Login Token Expired");
+      return false;
+    }
+    console.log("Token Validation - Login Token Valid");
+    console.log("Token Validation - Logging in User: ", userData);
+    login(userData);
+    return true
+  }
+
+  console.log("Starting useEffects");
+
+
+  useEffect(() => {
+    if(!user || Object.keys(user).length === 0)
+      return
+    console.log("User Changed: ", user)
+    createLoginToken(user);
+    if (!user || user === null || user === undefined) return;
+    console.log("Context - Setting Threads for User", user);
+    getUserThreads(user?.user?.id || []);
+    setLoggedIn(true);
+  }, [user]);
+
+  
+  const login = (userData) => {
+    console.log("Context - Logging in User: ", userData);
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData)); // Save user data to localStorage
+    console.log("Context - User on Load", userData);
+  };
+  
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user"); // Clear user data from localStorage
+    localStorage.removeItem("loginToken"); // Clear user data from localStorage
     router.reload();
   };
+  
+  async function getUserThreads(userId) {
+    if (
+      !userId ||
+      userId.length === 0 ||
+      userId === null ||
+      userId === undefined
+    )
+      return;
+      try {
+        console.log("getUserThreads - userId: ", userId);
+        console.log("getUserThreads - typeof userId: ", typeof userId);
+        let url = `http://localhost:8000/get_user_thread_list/${userId}`;
+        console.log("Thread List URL:", url);
+        const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const threadArray = await response.json(); // <- this is your JSON array
+      console.log("User Threads:", threadArray);
+      console.log(typeof threadArray);
+      const objectArray = threadArray.map((obj) => ({
+        name: obj.name,
+        threadId: obj.threadId,
+      }));
+      setThreads(objectArray);
+      setActiveThread(objectArray[0]?.threadId || 0); // Set active thread to first thread or 0 if none
+    } catch (error) {
+      console.error("Failed to fetch user Threads:", error);
+      return setThreads([]); // Set to empty array on error
+    }
+  }
+  function addMessage(msg, role) {
+    console.log("Context - Adding Message: ", msg);
+    let temp_msg = {
+      id: generateUniqueId(),
+      role: role,
+      text: msg,
+    }
+    setActiveMessages((prevMessages) => [ ...prevMessages, temp_msg]);
+  }
+  
+
+
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        conversations,
-        activeConversation,
+        activeThread,
         activeMessages,
-        setActiveConversation,
+        threads,
+        loggedIn,
+        setActiveThread,
+        setActiveMessages,
         addMessage,
         login,
         logout,
+        getUserThreads,
+        validateLoginToken,
+        setThreads,
       }}
     >
       {children}

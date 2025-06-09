@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +25,7 @@ SECRET_KEY = "django-insecure-ro5sv6_ouu1d(2^r-e_78l)rzrlymzyf%kvu@j@2$l8ea=dary
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "api",
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -83,6 +85,31 @@ DATABASES = {
     }
 }
 
+STORAGES = {
+  "default": {
+    "BACKEND": "django.core.files.storage.FileSystemStorage",
+    "OPTIONS": {
+      "location": BASE_DIR / "media",
+    },
+  },
+  "staticfiles": {
+    "BACKEND": "django.core.files.storage.StaticFilesStorage",
+    "OPTIONS": {
+      "location": BASE_DIR / "staticfiles",
+    },
+  },
+  "s3": {
+    "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    "OPTIONS": {
+      "access_key": os.environ.get('AWS_ACCESS_KEY_ID'),
+      "secret_key": os.environ.get('AWS_SECRET_ACCESS_KEY'),
+      "bucket_name": 'study-buddy-app',
+      "region_name": 'us-east-1',
+      "querystring_auth": False,
+    },
+  },
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -119,7 +146,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+MEDIA_ROOT = "media/"
 
+# AWS S3 settings
+
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

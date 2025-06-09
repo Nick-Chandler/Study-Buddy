@@ -3,62 +3,100 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 1rem;
-  background-color: #212121;
+  background-color: rgb(214, 210, 206);
   color: #FFFFFF;
+  flex: 1;
 }
 
+.lightTheme {
+  background-color: #A9A9A9;
+  color: black;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: .5rem;
+}
+
+.header > * {
+  flex: 1;
+  justify-self: center;
+  height: 100%;
+}
+  
+.placeholder {
+    flex: 1;
+}
+    
+.titles {
+      flex: 1;
+}
+      
+.titles p {
+  margin: 0;
+}
+
+.btnContainer {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+  
+.btnContainer > button {
+  height: 35%;
+  align-self: flex-end;
+}
+  
 .content {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 80%;
+  max-height: 50%;
   width: 100%;
   padding: .5rem;
   font-size: 15px;
   border: 1px solid darkgray;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .messages {
-  max-height: 100%;
   display: flex;
   flex-direction: column;
 }
-
+  
 .messages li {
-  height: 100%;
-  width: 100%;
-  display: flex;
+  /* min-height: 2rem; */
   align-items: center;
-  padding: .5rem;
+  padding: 5rem .5rem;
 }
 
 .messages li+li {
   border-top: 1px solid gray;
 }
-
+  
 .user {
   
 }
 
 .user p {
-  background-color: #303030;
+  background-color: #f1ebeb;
   padding: .5rem 1rem;
   border-radius: 20px;
   width: fit-content;
 }
-.assistant {
-}
 
 .input {
-  background-color: #40414F;
+  background-color: #444647;
   display: flex;
   justify-content: space-between;
   height: 4rem;
   border-radius: 20px;
   padding: .5rem;
+  margin-top: .5rem;
 }
-
+  
 .inputField {
   height: 100%;
   width: 100%;
@@ -72,7 +110,7 @@
   color: #A9A9A9;
   opacity: .8;
 }
-
+  
 .inputField:focus {
   outline: none;
 }
@@ -89,18 +127,15 @@
 .inputButtons label {
   cursor: pointer;
   flex: 1;
-  border-radius: 50%; /* Make it circular */
+  border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid gray; /* Optional: Add a border */
-  background-color: #40414F; /* Optional: Set a background color */
-  color: white; /* Optional: Set text/icon color */
+  border: 1px solid gray; 
+  background-color: #40414F; 
+  color: white; 
   padding: .75rem
 }
-/* transition: all .2s ease-in-out; */
-
-
 
 .upload {
   color: black;
@@ -110,10 +145,16 @@
 
 .human {
   background-color: rgb(78, 78, 78);
-  padding: .5rem 1rem;
+  padding: .25rem 1rem;
   border-radius: 20px;
+  width: fit-content;
+}
+
+.human p {
+  padding: 0;
+  margin: 0;
 }
 
 .ai {
-
 }
+

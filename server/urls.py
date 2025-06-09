@@ -16,13 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from api.views import assistant, login_view, register_view, ConversationListView, conversation_view
+from api import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("assistant/<str:cid>", assistant, name="assistant"),
-    path('login/', login_view, name='login'),
-    path('register/', register_view, name='register'),
-    path('conversation/<str:cid>/', conversation_view, name='conversation'),
-    path('conversationlist/', ConversationListView.as_view(), name='conversation-list'),
+    path("assistant/<int:user_id>/<str:thread_id>", views.assistant, name="assistant"),
+    path("get_user_thread_list/<int:user_id>", views.get_user_thread_list, name="get_user_thread_list"),
+    path("get_user_thread_messages/<int:user_id>/<str:thread_id>", views.get_user_thread_messages, name="get_user_thread_messages"),
+    path('create_thread_for_user/<int:user_id>/<str:name>', views.create_thread_for_user, name='create_thread_for_user'),
+    path('rename_thread/<int:user_id>/<str:thread_id>/<str:new_name>', views.rename_thread, name='rename_thread'),
+    path('delete_thread/<int:user_id>/<str:thread_id>', views.delete_thread, name='delete_thread'),
+    path('upload_document/<int:user_id>',views.upload_document, name='upload_document'),
+    path('login/', views.login_view, name='login'),
+    path('register/', views.register_view, name='register'),
+    path('threads/', views.OpenAIThreadListView.as_view(), name='thread-list'),
+    path('all-files/', views.AllUserFilesView.as_view(), name='all-user-files'),
+    path('file-url/', views.get_file_url, name='get_file_url'),
+    # path('test/', views.test_view, name='test-view'),
 ]

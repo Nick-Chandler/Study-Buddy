@@ -1,17 +1,23 @@
 .navbar {
   display: flex;
   height: 6%;
-  background-color: #BAF2E9;
   width: 100%;
   padding: 0;
   border: 1px solid black;
   justify-content: center;
   align-items: center;
+  background-color: #FFFAFA;
+  color: black;
+}
+
+.lightTheme {
+  background-color: antiquewhite;
+  color: black;
 }
 
 .container {
   height: 100%;
-  width: 100%;
+  width: 95%;
   display: flex;
   justify-content: space-between;
   padding: 0 2rem;
@@ -31,8 +37,20 @@
 
 .account {
   display: flex;
-  width: 10%;
+  width: 30%;
   justify-content: space-between;
+}
+
+.newThreadbtn {
+  cursor: pointer;
+}
+
+.threadSelect {
+  cursor: pointer;
+}
+
+.threadSelect:hover {
+  background-color: lightgray; /* darker shade */
 }
 
 .login {

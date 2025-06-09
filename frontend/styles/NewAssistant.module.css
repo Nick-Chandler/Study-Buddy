@@ -1,0 +1,162 @@
+.assistant {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.input {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 10px;
+  padding: .5rem 1rem;
+  margin-top: .5rem;
+  gap: .5rem;
+}
+
+.inputContainer {
+  display: flex;
+  justify-content: space-between;
+  padding: .5rem;
+  border-radius: 10px;
+}
+  
+.inputField {
+  flex: 1;
+  font-size: 15px;
+  background-color: transparent;
+  color: black;
+  border: none;
+}
+
+.inputField::placeholder {
+  color: #4e4e4e;
+  opacity: .8;
+}
+  
+.inputField:focus {
+  outline: none;
+}
+
+.fileUploadLabel {
+  cursor: pointer;
+}
+
+.fileUploads {
+  display: flex;
+  gap: .5rem;
+  margin: 0;
+}
+
+.fileThumbnail {
+  height: 3rem;
+  width: 10%;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.fileThumbnailDelete {
+  width: 25%;
+  height: 25%;
+  right: 0;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.5;
+}
+
+.fileThumbnailImage {
+  flex:1;
+}
+
+.content {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  padding: .5rem;
+  font-size: 15px;
+  overflow: auto;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages li {
+  /* min-height: 2rem; */
+  display: flex;
+  padding: 2rem .5rem;
+}
+
+.messages li+li {
+  border-top: 1px solid gray;
+}
+
+.messages li .user {
+  margin-left: auto;
+}
+
+.user {
+  background-color: rgb(189, 189, 189);
+  padding: .25rem 1rem;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+.message-card {
+  background: #f3f4f6;
+  color: #23272f;
+  border-radius: 1rem;
+  padding: 1.2rem 1.5rem;
+  margin: 1rem 0;
+  font-size: 1.09rem;
+  line-height: 1.7;
+  box-shadow: 0 2px 8px rgba(60, 60, 60, 0.05);
+  word-break: break-word;
+  overflow-x: auto;
+}
+
+.message-code-block {
+  background: #22272e;
+  color: #f3f4f6;
+  border-radius: 0.7rem;
+  padding: 0.8rem 1.1rem;
+  font-size: 1rem;
+  overflow-x: auto;
+}
+
+.message-inline-code {
+  background: #ececec;
+  color: #1a1a1a;
+  border-radius: 0.3em;
+  padding: 0.1em 0.3em;
+  font-size: 0.99em;
+}
+
+/* KaTeX tweaks for card background */
+.katex-display {
+  margin: 1em 0 !important;
+}
+
+
+.content::-webkit-scrollbar {
+  background: transparent;
+}
+
+.citation {
+  font-size: 0.85em;
+  color: #888;
+  vertical-align: super;
+  margin-left: 2px;
+  letter-spacing: 0.01em;
+  user-select: text;
+  font-family: 'Menlo', 'Consolas', monospace; /* Optional: makes it look "code-y" */
+  opacity: 0.85;
+}

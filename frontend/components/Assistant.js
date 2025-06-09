@@ -1,51 +1,91 @@
-import Styles from '../styles/Assistant.module.css'
-import { useState, useEffect, act } from 'react'
+import Styles from '../styles/NewAssistant.module.css'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from './AuthProvider'
+import { useTheme } from './ThemeProvider'
 import AssistantInput from './AssistantInput'
+import RenameButton from './RenameButton'
+import DeleteButton from './DeleteButton'
+import AIChat from './AIChat'
+import MessageList from './MessageList'
 
 
 
 export default function Assistant() {
-  const { user, conversations, activeConversation, setActiveConversation, activeMessages } = useAuth()
-  console.log(activeMessages)
-
-  // Function to fetch the response from the API
-
+  const { user, threads, activeThread, activeMessages, setActiveThread, setActiveMessages } = useAuth()
+  const { theme } = useTheme()
+  const assistantRef = useRef(null);
   useEffect(() => {
-    console.log("Assistant - Active Conversation on Load",activeConversation)
-    console.log("Assistant - All Conversations:",conversations)
-    console.log("Assistant - Active Conversation:",activeConversation)
-    console.log("Assistant - Active Messages:", activeMessages)
+    console.log("Assistant - Loaded")
+    console.log("Assistant - Active Messages: " ,activeMessages)
+    console.log("Assistant - User: ",user || 'No User Found')
+    console.log("Assistant - User ID: ", user?.user?.id || "No User ID");
+    console.log("Assistant - Active Thread: ", activeThread);
   }, []);
 
   useEffect(() => {
-    console.log("Assistant - Messages on Change: ", activeMessages)
-    displayMessages()
-  },[activeMessages])
+    getUserThreadMessages(user?.user?.id || [], activeThread)
+    console.log("Assistant(user useEffect) - Active Messages: ", activeMessages)
+  }, [user]);
+ 
+  useEffect(() => {
+    console.log("Active Messages Changed: ", activeMessages);
+  }, [activeMessages]);
 
-  function displayMessages() {
-    const ulElement = document.querySelector(`.${Styles.messages}`);
-    ulElement.innerHTML = ""; // Clear existing messages
-    console.log(`Assistant - Active Messages: ${activeMessages}`)
-    activeMessages.forEach((message) => {
-      const li = document.createElement("li");
-      const p = document.createElement("p");
-      p.className = Styles[message.role]; // Apply dynamic class based on message role
-      p.textContent = message.content; // Set the message content
-      li.appendChild(p);
-      ulElement.appendChild(li);
+  async function getUserThreadMessages(userId, activeThread) {
+    console.log("Get Thread Messages - Fetching User Thread Messages");
+    console.log("Get Thread Messages - User ID: ", userId);
+    console.log("Get Thread Messages - Active Thread: ", activeThread);
+    console.log("Get Thread Messages - Type of User ID: ", typeof userId);
+    console.log("Get Thread Messages - Type of Thread ID: ", typeof activeThread);
+    if(!Number.isInteger(userId) || !typeof activeThread === 'string' || !userId || !activeThread) {
+      console.log("Get Thread Messages - No User ID or Active Thread Found");
+      return;
+    }
+    console.log("Get Thread Messages - Creating URL for User Thread Messages");
+    const url = `http://localhost:8000/get_user_thread_messages/${userId}/${activeThread}`;
+    console.log("Get Thread Messages - Messages URL: ", url);
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
-  }
-  
 
+    if (!response.ok) {
+      console.log("Get Thread Messages - No Messages Found for User: ", userId, " Thread: ", activeThread);
+    }
+    const msgs = await response.json();
+    console.log("Get Thread Messages - Got Response: ", msgs)
+    setActiveMessages(msgs);
+    return msgs;
+  }
+
+  
+  function scrollToBottom() {
+    console.log("Ref: ",assistantRef.current)
+    assistantRef.current.scrollTop = assistantRef.current.scrollHeight;
+  }
+
+
+  useEffect(() => {
+    if (!activeThread) 
+      return
+    if (activeThread === "new")
+      create_new_thread_for_user(user?.user?.id || "")
+
+    console.log("Assistant - Active Thread Changed: ", activeThread);
+    console.log("Assistant - Calling getUserThreadMessages");
+    getUserThreadMessages(user?.user?.id || [], activeThread)
+    }, [activeThread]);
+  
   return (
-    <section className={Styles.assistant}>
-      <h1>AI Assistant</h1>
-      <div className={Styles.content}>
-        <ul className={Styles.messages}></ul>
+    <div className={Styles.assistant}>
+      <AssistantInput scrollToBottom={scrollToBottom}/>
+      <div className={Styles.content} ref={assistantRef} >
+        {/* <MessageList className={Styles.messages} messages={activeMessages} /> */}
+        <AIChat activeMessages={activeMessages} />
       </div>
-      <AssistantInput />
-    </section>
+    </div>
   );
 }
 
