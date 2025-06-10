@@ -1,5 +1,5 @@
 // context/AuthContext.js
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext, useEffect, use } from "react";
 import Router, { useRouter } from "next/router";
 import { useRef } from "react";
 
@@ -77,10 +77,9 @@ export function AuthProvider({ children }) {
     createLoginToken(user);
     if (!user || user === null || user === undefined) return;
     console.log("Context - Setting Threads for User", user);
-    getUserThreads(user?.user?.id || []);
+    getUserThreads(user?.userId || []);
     setLoggedIn(true);
   }, [user]);
-
   
   const login = (userData) => {
     console.log("Context - Logging in User: ", userData);
@@ -97,35 +96,37 @@ export function AuthProvider({ children }) {
   };
   
   async function getUserThreads(userId) {
+    console.log("Get User Threads - User:", user)
     if (
       !userId ||
-      userId.length === 0 ||
       userId === null ||
       userId === undefined
     )
       return;
-      try {
-        console.log("getUserThreads - userId: ", userId);
-        console.log("getUserThreads - typeof userId: ", typeof userId);
-        let url = `http://localhost:8000/get_user_thread_list/${userId}`;
-        console.log("Thread List URL:", url);
-        const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const threadArray = await response.json(); // <- this is your JSON array
-      console.log("User Threads:", threadArray);
-      console.log(typeof threadArray);
-      const objectArray = threadArray.map((obj) => ({
-        name: obj.name,
-        threadId: obj.threadId,
-      }));
-      setThreads(objectArray);
-      setActiveThread(objectArray[0]?.threadId || 0); // Set active thread to first thread or 0 if none
-    } catch (error) {
-      console.error("Failed to fetch user Threads:", error);
-      return setThreads([]); // Set to empty array on error
-    }
+    console.log("Get User Threads - threads:", user.threads);
+    setActiveThread(user.threads[0]?.threadId || 0); // Set active thread to first thread or 0 if none
+    //   try {
+    //     console.log("getUserThreads - userId: ", userId);
+    //     console.log("getUserThreads - typeof userId: ", typeof userId);
+    //     let url = `http://localhost:8000/get_user_thread_list/${userId}`;
+    //     console.log("Thread List URL:", url);
+    //     const response = await fetch(url);
+    //   if (!response.ok) {
+    //     throw new Error(`HTTP error! status: ${response.status}`);
+    //   }
+    //   const threadArray = await response.json(); // <- this is your JSON array
+    //   console.log("User Threads:", threadArray);
+    //   console.log(typeof threadArray);
+    //   const objectArray = threadArray.map((obj) => ({
+    //     name: obj.name,
+    //     threadId: obj.threadId,
+    //   }));
+    //   setThreads(objectArray);
+    //   setActiveThread(objectArray[0]?.threadId || 0); // Set active thread to first thread or 0 if none
+    // } catch (error) {
+    //   console.error("Failed to fetch user Threads:", error);
+    //   return setThreads([]); // Set to empty array on error
+    // }
   }
   function addMessage(msg, role) {
     console.log("Context - Adding Message: ", msg);

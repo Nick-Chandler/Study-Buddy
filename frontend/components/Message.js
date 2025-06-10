@@ -22,17 +22,6 @@ export default function Message({ content }) {
         remarkPlugins={[remarkMath]}
         rehypePlugins={[rehypeKatex, rehypeRaw]} // Added rehypeRaw to allow HTML tags
         components={{
-          code({ node, inline, className, children, ...props }) {
-            return !inline ? (
-              <pre className="message-code-block">
-                <code {...props}>{children}</code>
-              </pre>
-            ) : (
-              <code className="message-inline-code" {...props}>
-                {children}
-              </code>
-            )
-          },
           // Render span for citation styling
           span: ({ node, ...props }) => <span {...props} />,
           sup: ({ node, ...props }) => <sup {...props} />,

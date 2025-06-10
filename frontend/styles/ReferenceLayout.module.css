@@ -42,7 +42,7 @@
 /* Right Section */
 
 .right {
-  background-color: #e0e0e0;
+  /* background-color: #e0e0e0; */
   padding: 1rem;
   border-radius: 10px;
   display: flex;
@@ -59,7 +59,7 @@
 
 /* Assistant */
 .assistantContainer {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   border-radius: 10px;
   flex: 2;
   display: flex;

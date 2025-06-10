@@ -111,6 +111,8 @@ def upload_document(request, user_id):
                 status = 201
             except IntegrityError as e:
                 print(f"File with this name already exists: {e}")
+                file_instance = UserFile.objects.get(user_id=user_id, filename=docname)
+                file_instance.save()
                 status = 200
             return JsonResponse({"message": "File uploaded successfully",
                                   "status": "success",
@@ -187,15 +189,19 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 user_instance = User.objects.get(username=username)
-                user_data = UserSerializer(user_instance).data
-                thread_names = utils.get_user_thread_list(user_instance.id)
-                last_conversation = utils.get_last_user_conversation(user_instance.id)
-                print(f"User data: {user_data}")
+                # user_data = UserSerializer(user_instance).data
+                username = user_instance.username
+                user_id = user_instance.id
+                thread_names = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=True)
+                last_accessed_thread = utils.get_last_accessed_thread(user_instance.id)
+                print("Last Accesed Thread Type:", type(last_accessed_thread))
+                # print(f"User data: {user_data}")
                 return JsonResponse({"message": "Login successful",
                                       "status": "success",
-                                      "user": user_data,
-                                      "conversations": thread_names,
-                                      "lastConversation": last_conversation}, status=200)
+                                      "username": username,
+                                      "userId": user_id,
+                                      "threads": thread_names,
+                                      "lastAccessedThread": last_accessed_thread}, status=200)
             else:
                 return JsonResponse({"error": "Invalid credentials",
                                       "status": "failure"}, status=401)

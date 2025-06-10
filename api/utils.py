@@ -68,6 +68,7 @@ def get_latest_gpt_response(run, thread_id, print_all_messages: bool = False):
   return None
 
 def get_user_thread_list(user_id: int,sort_by_last_accessed:bool=False):
+  print(f"Fetching threads for user {user_id} with sort_by_last_accessed={sort_by_last_accessed}")
   try:
     user = User.objects.get(id=user_id)
   except ObjectDoesNotExist:
@@ -80,6 +81,10 @@ def get_user_thread_list(user_id: int,sort_by_last_accessed:bool=False):
     {"name": thread.name, "thread_id": thread.thread_id}
     for thread in threads
   ]
+
+def get_last_accessed_thread(user_id: int):
+  last_accessed_thread = OpenAIThread.objects.filter(user_id=user_id).order_by('-last_accessed').first().thread_id
+  return last_accessed_thread
 
 
 def rename_thread(user_id: int, thread_id: str, new_name: str):

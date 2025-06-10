@@ -24,17 +24,17 @@ export default function MessageList(props) {
   text = text.replace(/\\\[(.+?)\\\]/g, (match, p1) => `$$${p1.trim()}$$`);
 
   // Convert any equation on its own line not already wrapped to block math
-  text = text.split('\n').map(line => {
-    // Check for a simple math equation (improve regex for your needs)
-    if (
-      /^[\s\(\)A-Za-z0-9+\-/*^=<>|.,:;{}\[\]\\]+$/.test(line.trim()) &&
-      !line.trim().startsWith('$') &&
-      (line.includes('=') || line.includes('^'))
-    ) {
-      return `$$${line.trim()}$$`;
-    }
-    return line;
-  }).join('\n');
+  // text = text.split('\n').map(line => {
+  //   // Check for a simple math equation (improve regex for your needs)
+  //   if (
+  //     /^[\s\(\)A-Za-z0-9+\-/*^=<>|.,:;{}\[\]\\]+$/.test(line.trim()) &&
+  //     !line.trim().startsWith('$') &&
+  //     (line.includes('=') || line.includes('^'))
+  //   ) {
+  //     return `$$${line.trim()}$$`;
+  //   }
+  //   return line;
+  // }).join('\n');
 
   return text;
 }

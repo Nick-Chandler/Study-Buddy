@@ -99,7 +99,7 @@ class UserFile(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
   filename = models.CharField(max_length=100)
   file = models.FileField(storage=storages["s3"], upload_to=user_file_directory_path,max_length=255)
-  last_accessed = models.DateTimeField(auto_now=True)
+  last_accessed = models.DateTimeField(auto_now_add=True)
   class Meta:
     constraints = [
       models.UniqueConstraint(fields=['user', 'filename'], name='unique_filename_per_user')

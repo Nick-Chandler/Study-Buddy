@@ -22,7 +22,7 @@ export default function Assistant() {
   }, []);
 
   useEffect(() => {
-    getUserThreadMessages(user?.user?.id || [], activeThread)
+    getUserThreadMessages(user?.userId || [], activeThread)
     console.log("Assistant(user useEffect) - Active Messages: ", activeMessages)
   }, [user]);
  
@@ -62,7 +62,10 @@ export default function Assistant() {
   
   function scrollToBottom() {
     console.log("Ref: ",assistantRef.current)
-    assistantRef.current.scrollTop = assistantRef.current.scrollHeight;
+    assistantRef.current.scrollTo({
+    top: assistantRef.current.scrollHeight,
+    behavior: "smooth"
+    });
   }
 
 
@@ -74,7 +77,7 @@ export default function Assistant() {
 
     console.log("Assistant - Active Thread Changed: ", activeThread);
     console.log("Assistant - Calling getUserThreadMessages");
-    getUserThreadMessages(user?.user?.id || [], activeThread)
+    getUserThreadMessages(user?.userId || [], activeThread)
     }, [activeThread]);
   
   return (
