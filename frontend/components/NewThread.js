@@ -4,7 +4,7 @@ import { useAuth } from './AuthProvider'
 
 export default function NewThread() {
 
-  const { user, threads, activeThread, setActiveThread, setThreads, activeMessages, setActiveMessages} = useAuth()
+  const { user, threads, setActiveThread, setThreads, setActiveMessages} = useAuth()
 
 
   useEffect(() => {

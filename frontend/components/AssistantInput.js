@@ -15,8 +15,8 @@ export default function AssistantInput({ scrollToBottom }) {
   const [input, setInput] = useState('')
   const [fileThumbnails, setFileThumbnails] = useState([]);
   const [fileUploads, setFileUploads] = useState([]);
-  const {user, activeThread, activeMessages, setActiveMessages, addMessage} = useAuth()
-  const { referenceImg, setReferenceImg, getAiResponse} = useLayout();
+  const {user, activeThread, addMessage} = useAuth()
+  const { getAiResponse} = useLayout();
 
 // Function to send a message to the assistant
   async function talkToAssistant(e) {

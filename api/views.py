@@ -177,6 +177,17 @@ def get_file_url(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
 
+def firebase_login_view(request, email):
+    if request.method == "GET":
+        user, created = User.objects.get_or_create(username=email)
+        threads = OpenAIThread.get_threads_for_user(user.id, name_list=True, print_threads=True)
+        print(f"User found: {user.username}")
+        return JsonResponse({"message": "User found",
+                              "status": "success",
+                              "username": user.username,
+                              "userId": user.id}, status=200)
+
+
 @csrf_exempt
 def login_view(request):
     if request.method == "POST":
@@ -192,7 +203,7 @@ def login_view(request):
                 # user_data = UserSerializer(user_instance).data
                 username = user_instance.username
                 user_id = user_instance.id
-                thread_names = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=True)
+                threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=True)
                 last_accessed_thread = utils.get_last_accessed_thread(user_instance.id)
                 print("Last Accesed Thread Type:", type(last_accessed_thread))
                 # print(f"User data: {user_data}")
@@ -200,7 +211,7 @@ def login_view(request):
                                       "status": "success",
                                       "username": username,
                                       "userId": user_id,
-                                      "threads": thread_names,
+                                      "threads": threads,
                                       "lastAccessedThread": last_accessed_thread}, status=200)
             else:
                 return JsonResponse({"error": "Invalid credentials",

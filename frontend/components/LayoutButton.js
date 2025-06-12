@@ -4,7 +4,7 @@ import { useLayout } from './LayoutContext';
 
 export default function LayoutsButton() {
   const [open, setOpen] = useState(false);
-  const { currentLayout, setCurrentLayout, availableLayouts } = useLayout();
+  const { currentLayout, setCurrentLayout } = useLayout();
 
   function handleLayoutChange(layout) {
     if (currentLayout === layout) {

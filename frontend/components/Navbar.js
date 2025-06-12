@@ -7,7 +7,7 @@ import { useTheme } from './ThemeProvider'
 
 export default function Navbar() {
 
-  const { user, login, logout, loggedIn, activeMessages, activeThread, threads } = useAuth()
+  const { user, loggedIn, activeMessages, activeThread, threads } = useAuth()
   const { theme } = useTheme()
   console.log("Navbar - User: ", user)
   console.log("Navbar - Active Messages: ", activeMessages)

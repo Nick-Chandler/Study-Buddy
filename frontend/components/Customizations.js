@@ -7,7 +7,7 @@ import { useLayout } from './LayoutContext';
 
 
 export default function Customizations() {
-  const { theme, setTheme, changeTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const { currentLayout } = useLayout();
 
   return (

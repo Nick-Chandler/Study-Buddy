@@ -10,7 +10,7 @@ import MessageList from './MessageList'
 
 
 export default function Assistant() {
-  const { user, threads, activeThread, activeMessages, setActiveThread, setActiveMessages } = useAuth()
+  const { user, activeThread, activeMessages, setActiveMessages } = useAuth()
   const { theme } = useTheme()
   const assistantRef = useRef(null);
   useEffect(() => {

@@ -10,7 +10,7 @@ import Message from './Message'
 
 export default function MessageList(props) {
 
-  const { user, threads, activeThread, activeMessages, setActiveThread, setActiveMessages, addMessage } = useAuth()
+  const { user, activeMessages } = useAuth()
   const [key, setKey] = useState(0)
 
   useEffect(() => {

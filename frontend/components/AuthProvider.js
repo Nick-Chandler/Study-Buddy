@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [activeMessages, setActiveMessages] = useState([]);
   const [threads, setThreads] = useState([]);
-  const [activeThread, setActiveThread] = useState(threads[0]?.threadId || 0); // Initialize activeThread to first thread or 0 if none
+  const [activeThread, setActiveThread] = useState(user.threads?.[0].threadId || 0); // Initialize activeThread to first thread or 0 if none
   const router = useRouter();
 
   console.log("AuthProvider - States Generated");
@@ -105,28 +105,6 @@ export function AuthProvider({ children }) {
       return;
     console.log("Get User Threads - threads:", user.threads);
     setActiveThread(user.threads[0]?.threadId || 0); // Set active thread to first thread or 0 if none
-    //   try {
-    //     console.log("getUserThreads - userId: ", userId);
-    //     console.log("getUserThreads - typeof userId: ", typeof userId);
-    //     let url = `http://localhost:8000/get_user_thread_list/${userId}`;
-    //     console.log("Thread List URL:", url);
-    //     const response = await fetch(url);
-    //   if (!response.ok) {
-    //     throw new Error(`HTTP error! status: ${response.status}`);
-    //   }
-    //   const threadArray = await response.json(); // <- this is your JSON array
-    //   console.log("User Threads:", threadArray);
-    //   console.log(typeof threadArray);
-    //   const objectArray = threadArray.map((obj) => ({
-    //     name: obj.name,
-    //     threadId: obj.threadId,
-    //   }));
-    //   setThreads(objectArray);
-    //   setActiveThread(objectArray[0]?.threadId || 0); // Set active thread to first thread or 0 if none
-    // } catch (error) {
-    //   console.error("Failed to fetch user Threads:", error);
-    //   return setThreads([]); // Set to empty array on error
-    // }
   }
   function addMessage(msg, role) {
     console.log("Context - Adding Message: ", msg);

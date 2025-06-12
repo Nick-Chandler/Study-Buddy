@@ -7,7 +7,7 @@ import NewThread from './NewThread'
 
 export default function LoggedInAccount() {
 
-  const { user, activeThread, threads, setActiveThread, login, logout, getThreads } = useAuth()
+  const { user, logout } = useAuth()
   
 
   return (

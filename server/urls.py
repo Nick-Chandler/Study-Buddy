@@ -28,6 +28,7 @@ urlpatterns = [
     path('delete_thread/<int:user_id>/<str:thread_id>', views.delete_thread, name='delete_thread'),
     path('upload_document/<int:user_id>',views.upload_document, name='upload_document'),
     path('login/', views.login_view, name='login'),
+    path('firebase_login/<str:email>', views.firebase_login_view, name='firebase_login'),
     path('register/', views.register_view, name='register'),
     path('threads/', views.OpenAIThreadListView.as_view(), name='thread-list'),
     path('all-files/', views.AllUserFilesView.as_view(), name='all-user-files'),
