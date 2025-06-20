@@ -20,7 +20,7 @@ def assistant(request, user_id, thread_id):
         print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
         user_input = request.POST.get('user_input', '')
         file_array = request.FILES.getlist('files')
-        documents = request.FILES.getlist('document')
+        document = request.FILES.getlist('document')
 
         print(f"User input: {user_input}")
         print(f"Files received: {len(file_array)} files")
@@ -30,9 +30,11 @@ def assistant(request, user_id, thread_id):
         try:
             assistant_id = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first().assistant_id
             print("Calling assistant function...")
-            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array, documents, assistant_id=assistant_id)
+            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array, document, assistant_id=assistant_id)
             ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
             print(f"GPT Response: {gpt_response}")
+            current_document = utils.get_most_recent_userfile(user_id)
+            most_similar_pages = current_document.most_similar_pages(user_input,n=5,debug=True)
             return JsonResponse({"message": gpt_response,
                                 "status": "success"}, status=200)
         except Exception as e:
@@ -41,7 +43,7 @@ def assistant(request, user_id, thread_id):
 def get_user_thread_list(request, user_id):
     print(f"Fetching thread list for user {user_id}")
     try:
-        user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=True)
+        user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=False)
     except Exception as e:
         print(f"Error fetching threads for user {user_id}: {e}")
         return JsonResponse({"error": str(e), "status": "failure"}, status=500)

@@ -11,9 +11,10 @@ export function LayoutProvider({ children }) {
 
     async function uploadFile(formData) {
     try {
-      const url = `http://localhost:8000/upload_document/${user?.user?.id}`
+      const url = `http://localhost:8000/upload_document/${user?.userId}`
       console.log("uploadFile - URL: ", url);
       console.log("uploadFile - FormData: ", formData);
+      console.log("uploadFile - User", user)
       const response = await fetch(url, {
         method: 'POST',
         body: formData,

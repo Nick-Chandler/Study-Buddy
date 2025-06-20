@@ -27,7 +27,7 @@ export default function AssistantInput({ scrollToBottom }) {
     }
     e.preventDefault() // Prevent default form submission
     // call api to get response
-    let userId = user?.user?.id || ""
+    let userId = user.userId || ""
     console.log("AssistantInput - User ID: ", userId)
     console.log("AssistantInput - Active Thread: ", activeThread)
     if (!userId) return

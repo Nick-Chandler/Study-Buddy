@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.files.storage import storages
-import uuid  # To generate unique conversation IDs
-import openai
+import openai,uuid, numpy as np
 
 class Conversation(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations")
@@ -104,5 +103,33 @@ class UserFile(models.Model):
     constraints = [
       models.UniqueConstraint(fields=['user', 'filename'], name='unique_filename_per_user')
     ]
+  def most_similar_pages(self, user_input, n=1, embedding_model="text-embedding-3-small", debug=False):
+    response = openai.embeddings.create(
+      input=user_input,
+      model=embedding_model
+    )
+    user_embedding = np.array(response.data[0].embedding)
+
+    similarities = []
+    for i,emb in enumerate(self.embeddings.all()):
+      print(f"Page {i+1}/{self.embeddings.count()} - ID: {emb.id}")
+      page_embedding = np.array(emb.embedding)
+      sim = np.dot(user_embedding, page_embedding) / (np.linalg.norm(user_embedding) * np.linalg.norm(page_embedding))
+      similarities.append((emb, sim))
+
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    if debug:
+      print(f"\nEmbedding model: {embedding_model}")
+      print(f"User input: {user_input}")
+      print(f"Top {n} most similar pages:")
+      page = 1
+      for emb, sim in similarities[:n]:
+        print(f"Page ID: {emb.id}, Similarity: {sim}")
+    return similarities[:n]  # Returns a list of (Embedding instance, similarity)
 
 
+class Embedding(models.Model):
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+  file_id = models.ForeignKey(UserFile, on_delete=models.CASCADE, related_name='embeddings')
+  embedding = models.JSONField()
+  created_at = models.DateTimeField(auto_now_add=True)

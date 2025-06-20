@@ -26,7 +26,6 @@ def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assist
   if files:
     [print(f"File Provided: {f.name}") for f in files]
 
-  print("")
   attachments = prepare_openai_attachments(documents)
   content = prepare_openai_content(user_input, files)
 
@@ -66,8 +65,8 @@ def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assist
     print("InvalidRequestError:", e)
     raise ValueError(f"Invalid request: {e}. Please check your input and try again.")
   print("Retrieving response...")
-  response = utils.get_latest_gpt_response(run, thread_id, print_all_messages=True)
-  print("Response received:", response)
+  response = utils.get_latest_gpt_response(run, thread_id, print_all_messages=False)
+  # print("Response received:", response)
   return response
 
 def find_file_purpose(filename):
@@ -114,7 +113,7 @@ def prepare_openai_content(user_input, img_files):
         }
       }
     })
-  print("OpenAI content prepared:", content)    
+  # print("OpenAI content prepared:", content)    
   return content
 
 

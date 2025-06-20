@@ -3,8 +3,9 @@ from django.contrib.auth.models import User
 from api.models import User, Conversation, OpenAIAssistant, OpenAIThread,User
 from api.serializers import OpenAIThreadSerializer
 from django.core.exceptions import ObjectDoesNotExist
+from PyPDF2 import PdfReader, PdfWriter
 import openai, time
-
+import io
 
 def get_user_threads(user_id):
   try:
@@ -57,13 +58,14 @@ def get_latest_gpt_response(run, thread_id, print_all_messages: bool = False):
       elif msg.role == "assistant":
         for block in msg.content:
           if block.type == "text":
-            print("Assistant response:", block.text.value)
+            pass
+            # print("Assistant response:", block.text.value)
 
   for msg in message_data:          
     if msg.role == "assistant":
       for block in msg.content:      
         if block.type == "text":
-          print("Assistant response:", block.text.value)
+          # print("Assistant response:", block.text.value)
           return block.text.value
   return None
 
@@ -165,3 +167,30 @@ def print_costs_for_all_models(input_tokens: int, output_tokens: int):
     cost = (input_tokens * rate["input"] + output_tokens * rate["output"]) / 1000
     print(f"{model}: ${round(cost, 6)}")
 
+def split_pages_to_binary_files(pdf_binary):
+  reader = PdfReader(io.BytesIO(pdf_binary))
+  output_files = []
+
+  for page_num in range(len(reader.pages)):
+    writer_buffer = io.BytesIO()
+    writer = PdfWriter()
+    writer.add_page(reader.pages[page_num])
+    writer.write(writer_buffer)
+    output_files.append(writer_buffer.getvalue())
+  return output_files
+
+def generate_embedding_for_pdf_page(page_binary, model="text-embedding-3-small"):
+  # Convert PDF page to text using PyPDF2
+  reader = PdfReader(io.BytesIO(page_binary))
+  text = ""
+  if reader.pages:
+    text = reader.pages[0].extract_text() or ""
+  # Call OpenAI embeddings API
+  response = openai.embeddings.create(
+    input=text,
+    model=model
+  )
+  return response.data[0].embedding
+
+def get_most_recent_userfile(user_id):
+  return User.objects.get(id=user_id).user_files.order_by('-last_accessed').first()

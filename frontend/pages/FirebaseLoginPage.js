@@ -1,11 +1,16 @@
 // src/SignIn.js
 import React from "react"
+import { useState } from "react"
 import { signInWithPopup } from "firebase/auth"
 import { auth, provider } from "../lib/firebase"
 import FirebaseAuthForm from "../components/FirebaseAuthForm"
 
 
-export default function SignIn() {
+export default function FirebaseLoginPage() {
+
+  console.log("auth:", auth)
+  console.log("auth currentUser:", auth?.currentUser)
+  console.log("Current User:",auth?.currentUser ? auth.currentUser : "No User")
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, provider)
       .then(result => {
