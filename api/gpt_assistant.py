@@ -125,7 +125,6 @@ def prepare_openai_attachments(documents):
   # # Create File (if applicable)
   for f in documents:
     print("Processing OpenAI document file for filename:", f.name, "...")
-
     try:
       print("Creating OpenAI document file for:", f.name)
       openai_file = openai.files.create(

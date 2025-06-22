@@ -126,10 +126,12 @@ class UserFile(models.Model):
       for emb, sim in similarities[:n]:
         print(f"Page ID: {emb.id}, Similarity: {sim}")
     return similarities[:n]  # Returns a list of (Embedding instance, similarity)
+  
 
 
 class Embedding(models.Model):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   file_id = models.ForeignKey(UserFile, on_delete=models.CASCADE, related_name='embeddings')
+  page_number = models.IntegerField()  # Page number in the file
   embedding = models.JSONField()
   created_at = models.DateTimeField(auto_now_add=True)

@@ -23,9 +23,10 @@ def create_embeddings_for_userfile(sender, instance, created, **kwargs):
   page_binaries = split_pages_to_binary_files(pdf_binary)
 
   # For each page, generate embedding and save to Embedding model
-  for page_binary in page_binaries:
+  for i,page_binary in enumerate(page_binaries):
     embedding_data = generate_embedding_for_pdf_page(page_binary)
     Embedding.objects.create(
       file_id=instance,
-      embedding=embedding_data
+      page_number=i + 1,
+      embedding=embedding_data,
     )

@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 # from langchain_openai import ChatOpenAI
-from api.models import User, Conversation, OpenAIAssistant, OpenAIThread,User
+from api.models import User, Conversation, OpenAIAssistant, OpenAIThread, UserFile
 from api.serializers import OpenAIThreadSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from PyPDF2 import PdfReader, PdfWriter
