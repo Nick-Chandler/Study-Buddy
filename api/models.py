@@ -134,4 +134,5 @@ class Embedding(models.Model):
   file_id = models.ForeignKey(UserFile, on_delete=models.CASCADE, related_name='embeddings')
   page_number = models.IntegerField()  # Page number in the file
   embedding = models.JSONField()
+  openai_file_id = models.CharField(max_length=100, unique=True, null=True, blank=True)  # OpenAI file ID if uploaded
   created_at = models.DateTimeField(auto_now_add=True)
