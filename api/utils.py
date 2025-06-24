@@ -4,8 +4,7 @@ from api.models import User, Conversation, OpenAIAssistant, OpenAIThread, UserFi
 from api.serializers import OpenAIThreadSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from PyPDF2 import PdfReader, PdfWriter
-import openai, time
-import io
+import openai, time, io, fitz
 
 def get_user_threads(user_id):
   try:
@@ -167,6 +166,19 @@ def print_costs_for_all_models(input_tokens: int, output_tokens: int):
     cost = (input_tokens * rate["input"] + output_tokens * rate["output"]) / 1000
     print(f"{model}: ${round(cost, 6)}")
 
+def extract_text_per_page(instance):
+  """
+  Takes a Django model instance with a FileField (PDF) and returns a list of text per page.
+  """
+  pdf_path = instance.file.path  # adjust 'file' to your actual FileField name
+  texts = []
+
+  with fitz.open(pdf_path) as doc:
+    for page in doc:
+      texts.append(page.get_text())
+
+  return texts
+
 def split_pages_to_binary_files(pdf_binary):
   reader = PdfReader(io.BytesIO(pdf_binary))
   output_files = []
@@ -179,12 +191,10 @@ def split_pages_to_binary_files(pdf_binary):
     output_files.append(writer_buffer.getvalue())
   return output_files
 
-def generate_embedding_for_pdf_page(page_binary, model="text-embedding-3-small"):
+
+
+def generate_embedding_for_pdf_page(text, model="text-embedding-3-small"):
   # Convert PDF page to text using PyPDF2
-  reader = PdfReader(io.BytesIO(page_binary))
-  text = ""
-  if reader.pages:
-    text = reader.pages[0].extract_text() or ""
   # Call OpenAI embeddings API
   response = openai.embeddings.create(
     input=text,

@@ -39,7 +39,6 @@ class OpenAIThread(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_accessed = models.DateTimeField(auto_now=True)
 
-
     def __str__(self):
         return f"Thread for {self.user.username}: {self.thread_id}"
     
@@ -92,7 +91,9 @@ class ThreadMessage(models.Model):
   
 
 def user_file_directory_path(instance, filename):
-  return f"uploads/user_{instance.user.username}/{filename}"
+  path = f"uploads/user_{instance.user.username}/{filename}"
+  print(f"File Uploaded to Location - {path}")
+  return path
 
 class UserFile(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
@@ -103,36 +104,55 @@ class UserFile(models.Model):
     constraints = [
       models.UniqueConstraint(fields=['user', 'filename'], name='unique_filename_per_user')
     ]
-  def most_similar_pages(self, user_input, n=1, embedding_model="text-embedding-3-small", debug=False):
-    response = openai.embeddings.create(
-      input=user_input,
-      model=embedding_model
-    )
-    user_embedding = np.array(response.data[0].embedding)
-
-    similarities = []
-    for i,emb in enumerate(self.embeddings.all()):
-      print(f"Page {i+1}/{self.embeddings.count()} - ID: {emb.id}")
-      page_embedding = np.array(emb.embedding)
-      sim = np.dot(user_embedding, page_embedding) / (np.linalg.norm(user_embedding) * np.linalg.norm(page_embedding))
-      similarities.append((emb, sim))
-
-    similarities.sort(key=lambda x: x[1], reverse=True)
+  def chunk_similarity_scores(self, user_input, embedding_model="text-embedding-3-small", debug=False):
+    chunks = self.chunks.all().order_by('chunk_number')
     if debug:
-      print(f"\nEmbedding model: {embedding_model}")
-      print(f"User input: {user_input}")
-      print(f"Top {n} most similar pages:")
-      page = 1
-      for emb, sim in similarities[:n]:
-        print(f"Page ID: {emb.id}, Similarity: {sim}")
-    return similarities[:n]  # Returns a list of (Embedding instance, similarity)
+      print(f"Finding most similar chunks for user input: {user_input}")
+      print(f"Using embedding model: {embedding_model}")
+      print(f"Total chunks available: {len(chunks)}")
+    if not chunks:
+      print("No chunks available for this file.")
+      return []
+    
+    similiarities = []
+    
+    for chunk in chunks:
+      sim = chunk.compare_to_user_input(user_input, embedding_model, debug)
+      similiarities.append((chunk, sim))
+    similiarities.sort(key=lambda x: x[1], reverse=True)
+
+    return similiarities
+
+      
   
 
 
-class Embedding(models.Model):
+class Chunk(models.Model):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-  file_id = models.ForeignKey(UserFile, on_delete=models.CASCADE, related_name='embeddings')
-  page_number = models.IntegerField()  # Page number in the file
+  file_id = models.ForeignKey(UserFile, on_delete=models.CASCADE, related_name='chunks')
+  chunk_number = models.IntegerField()  # Chunk number in the file
+  text = models.CharField(max_length=5000)  # OpenAI file ID if uploaded
   embedding = models.JSONField()
-  openai_file_id = models.CharField(max_length=100, unique=True, null=True, blank=True)  # OpenAI file ID if uploaded
   created_at = models.DateTimeField(auto_now_add=True)
+  
+  def compare_to_user_input(self, user_input, embedding_model="text-embedding-3-small", debug=False):
+    if debug:
+      print(f"Comparing chunk {self.id} to user input: {user_input}")
+      print(f"Using embedding model: {embedding_model}")
+    # Generate embedding for the user input
+    user_embedding = openai.embeddings.create(
+      input=user_input,
+      model=embedding_model
+    ).data[0].embedding
+    
+    # Calculate cosine similarity
+    chunk_embedding = np.array(self.embedding)
+    user_embedding = np.array(user_embedding)
+    
+    similarity = np.dot(chunk_embedding, user_embedding) / (np.linalg.norm(chunk_embedding) * np.linalg.norm(user_embedding))
+    
+    if debug:
+      print(f"Comparing user input \"{user_input}\" to chunk number {self.chunk_number} with text: {self.text[:50]}...")
+      print(f"Similarity: {similarity}")
+    
+    return similarity

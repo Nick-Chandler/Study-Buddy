@@ -20,7 +20,7 @@ from api import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("assistant/<int:user_id>/<str:thread_id>", views.assistant, name="assistant"),
+    path("assistant/<int:user_id>/<str:thread_id>", views.assistant2, name="assistant2"),
     path("get_user_thread_list/<int:user_id>", views.get_user_thread_list, name="get_user_thread_list"),
     path("get_user_thread_messages/<int:user_id>/<str:thread_id>", views.get_user_thread_messages, name="get_user_thread_messages"),
     path('create_thread_for_user/<int:user_id>/<str:name>', views.create_thread_for_user, name='create_thread_for_user'),

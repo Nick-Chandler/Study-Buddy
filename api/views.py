@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, OpenAIThreadSerializer, UserFileSerializer
 from api.models import OpenAIAssistant, OpenAIThread, ThreadMessage, UserFile
-from api import gpt_assistant, utils
+from api import gpt_assistant, gpt_assistant2, utils
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
 import openai
@@ -17,43 +17,59 @@ import openai
 def assistant(request, user_id, thread_id):
 
     if request.method == 'POST':
-        print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
-        user_input = request.POST.get('user_input', '')
-        file_array = request.FILES.getlist('files')
-        document = request.FILES.getlist('document')
+      print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
+      user_input = request.POST.get('user_input', '')
+      file_array = request.FILES.getlist('files')
+      document = request.FILES.getlist('document')
 
-        print(f"User input: {user_input}")
-        print(f"Files received: {len(file_array)} files")
-        thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
-        thread.save()
-        human_message = ThreadMessage.objects.create(thread=thread, role="human", content=user_input)
-        try:
-            assistant_id = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first().assistant_id
-            print("Calling assistant function...")
-            gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array, document, assistant_id=assistant_id)
-            ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
-            print(f"GPT Response: {gpt_response}")
-            current_document = utils.get_most_recent_userfile(user_id)
-            most_similar_pages = current_document.most_similar_pages(user_input,n=5,debug=True)
-            return JsonResponse({"message": gpt_response,
+      print(f"User input: {user_input}")
+      print(f"Files received: {len(file_array)} files")
+      thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
+      thread.save()
+      human_message = ThreadMessage.objects.create(thread=thread, role="human", content=user_input)
+      try:
+          assistant_id = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first().assistant_id
+          print("Calling assistant function...")
+          gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array, document, assistant_id=assistant_id)
+          ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
+          print(f"GPT Response: {gpt_response}")
+          current_document = utils.get_most_recent_userfile(user_id)
+          most_similar_pages = current_document.most_similar_chunks(user_input,n=5,debug=True)
+          return JsonResponse({"message": gpt_response,
                                 "status": "success"}, status=200)
-        except Exception as e:
-            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+      except Exception as e:
+          return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+        
+def assistant2(request, user_id, thread_id):
+      try:
+        user_input = request.POST.get('user_input', '')
+        print(f"User input: {user_input}")
+        document_name = request.POST.get('document_name', None)
+        print(f"Document name: {document_name}")
+        assistant = OpenAIAssistant.objects.filter(model="gpt-4o-mini").first()
+        gpt_response = gpt_assistant2.run_assistant2(user_id, thread_id, user_input, assistant=assistant, max_prompt_tokens=20000, debug=True)
+        return JsonResponse({"message": gpt_response,
+                                "status": "success"}, status=200)
+      except Exception as e:
+        print(f"Error in assistant_2: {e}")
+        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+
+
     
 def get_user_thread_list(request, user_id):
     print(f"Fetching thread list for user {user_id}")
     try:
-        user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=False)
+      user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=False)
     except Exception as e:
-        print(f"Error fetching threads for user {user_id}: {e}")
-        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+      print(f"Error fetching threads for user {user_id}: {e}")
+      return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     return JsonResponse(user_threads, safe=False)
 
 def get_user_thread_messages(request, user_id, thread_id):
-    print(f"Fetching messages for user {user_id}: thread index {thread_id}")
+    print(f"Fetching messages for user - {user_id}: | thread index - {thread_id}")
     if not thread_id:
-        print(f"Thread id {thread_id} not found for user: {user_id}")
-        return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
+      print(f"Thread id {thread_id} not found for user: {user_id}")
+      return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
     
     print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
     # thread = OpenAIThread.objects.get(thread_id=thread_id)
@@ -67,7 +83,7 @@ def get_user_thread_messages(request, user_id, thread_id):
         has_next_page = True
         while has_next_page:
             for index, message in enumerate(messages.data):
-                print(f"Message {index}: {message}")
+                # print(f"Message {index}: {message}")
                 text = next(
                 (part.text.value for part in message.content if part.type == "text"),
                 ""  # default to empty string if no text part
@@ -77,9 +93,9 @@ def get_user_thread_messages(request, user_id, thread_id):
                     'role': message.role,
                     'text': text
                 })
-                print(f"Message {index} added: {thread_messages[-1]}")
+                # print(f"Message {index} added: {thread_messages[-1]}")
             has_next_page = messages.has_more
-            print(f"Has next page: {has_next_page}")
+            # print(f"Has next page: {has_next_page}")
             if has_next_page:
                 print(f"Fetching next page of messages for thread {thread_id}")
                 messages = client.beta.threads.messages.list(thread_id=thread_id, after=messages.data[-1].id)
@@ -90,35 +106,44 @@ def get_user_thread_messages(request, user_id, thread_id):
         print(f"Error fetching messages for thread {thread_id}: {e}") 
         return JsonResponse({"error": "Failed to fetch messages", "status": "failure"}, status=500)
     print(f"Total messages fetched: {len(thread_messages)}")
-    for msg in thread_messages:
-        print("Message ID:", msg['id'], "Role:", msg['role'], "Text:", msg['text'])
+    # for msg in thread_messages:
+    #     print("Message ID:", msg['id'], "Role:", msg['role'], "Text:", msg['text'])
     return JsonResponse(thread_messages, safe=False)
 
 
 @csrf_exempt
 def upload_document(request, user_id):
+    print(f"Upload document request received for user {user_id}")
+    print(f"Request method: {request.method}")
     if request.method == 'POST':
         try:
+            if not request.FILES or 'document' not in request.FILES:
+                print("No files found in the request")
+                return JsonResponse({"error": "No files found", "status": "failure"}, status=400)
             print(f"Uploading file for user {user_id}")
-            doc = request.FILES.get('doc')
-            docname = request.POST.get('docname')
-            if not doc or not docname:
+            document = request.FILES.get('document')
+            document_name = document.name
+            print(f"Document received: {document_name}")
+            if not document:
+                print("No document or document name provided")
                 return JsonResponse({"error": "No file found", "status": "failure"}, status=400)
-
-            print(f"File received: Filename: {docname}")
             
             try:
-                file_instance = UserFile.objects.create(user_id=user_id, filename=docname, file=doc)
+                print(f"Creating UserFile instance for user {user_id} with filename {document_name}")
+                file_instance = UserFile.objects.create(user_id=user_id, filename=document_name, file=document)
                 print("UserFile instance created successfully")
                 status = 201
+                return JsonResponse({"message": "File uploaded successfully",
+                                  "status": "success",
+                                  "filename": document_name}, status=status)
             except IntegrityError as e:
                 print(f"File with this name already exists: {e}")
-                file_instance = UserFile.objects.get(user_id=user_id, filename=docname)
+                file_instance = UserFile.objects.get(user_id=user_id, filename=document_name)
                 file_instance.save()
                 status = 200
-            return JsonResponse({"message": "File uploaded successfully",
+                return JsonResponse({"message": "File uploaded successfully, but a file with this name already exists",
                                   "status": "success",
-                                  "filename": docname}, status=status)
+                                  "filename": document_name}, status=status)
         except Exception as e:
             print(f"Error uploading file for user {user_id}: {e}")
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)

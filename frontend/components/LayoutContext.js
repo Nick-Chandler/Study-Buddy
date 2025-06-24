@@ -7,14 +7,21 @@ export function LayoutProvider({ children }) {
   const [availableLayouts, setAvailableLayouts] = useState(["default", "reference", "cs"]);
   const [referenceImg, setReferenceImg] = useState(null);
   const [document, setDocument] = useState(null);
+  const [documentName, setDocumentName] = useState(null);
   const { user, activeThread } = useAuth();
 
-    async function uploadFile(formData) {
+    async function uploadFile() {
+      if (!document) {
+        console.log("No document to upload");
+        return false;
+      }
     try {
       const url = `http://localhost:8000/upload_document/${user?.userId}`
       console.log("uploadFile - URL: ", url);
-      console.log("uploadFile - FormData: ", formData);
       console.log("uploadFile - User", user)
+      console.log("uploadFile - Document: ", document)
+      const formData = new FormData()
+      formData.append('document', document)
       const response = await fetch(url, {
         method: 'POST',
         body: formData,
@@ -44,15 +51,20 @@ export function LayoutProvider({ children }) {
     console.log("getAiResponse called with fileArray: ", fileArray);
     const url = `http://localhost:8000/assistant/${user_id}/${activeThread}`
     console.log("Context - Active Thread: ", activeThread)
-    console.log("getAiResponse - Document: ", document)
+    console.log("getAiResponse - Document Name: ", documentName)
     const formData = new FormData()
     formData.append('user_input', user_input)
     fileArray.forEach(file => formData.append('files', file))
-    document && formData.append('document', document)
+    document && formData.append('document_name', documentName)
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
     })
+
+    if (!response.ok) {
+      console.error("Error fetching AI response: ", response.statusText);
+      throw new Error('Failed to fetch AI response');
+    }
 
     const data = await response.json()
     console.log("Assistant - Response: ", data)
@@ -69,6 +81,8 @@ export function LayoutProvider({ children }) {
         setReferenceImg,
         document,
         setDocument,
+        documentName,
+        setDocumentName,
         uploadFile,
         getAiResponse
       }}
