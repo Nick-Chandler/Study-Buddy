@@ -203,4 +203,11 @@ def generate_embedding_for_pdf_page(text, model="text-embedding-3-small"):
   return response.data[0].embedding
 
 def get_most_recent_userfile(user_id):
-  return User.objects.get(id=user_id).user_files.order_by('-last_accessed').first()
+    try:
+        return User.objects.get(id=user_id).user_files.order_by('-last_accessed').first()
+    except User.DoesNotExist:
+        print(f"User with ID {user_id} does not exist.")
+        return None
+    except Exception as e:
+        print(f"An error occurred while fetching the most recent UserFile: {e}")
+        return None

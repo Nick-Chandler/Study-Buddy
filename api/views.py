@@ -1,5 +1,5 @@
 import os, json, uuid
-from django.http import JsonResponse
+from django.http import FileResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
@@ -39,15 +39,16 @@ def assistant(request, user_id, thread_id):
                                 "status": "success"}, status=200)
       except Exception as e:
           return JsonResponse({"error": str(e), "status": "failure"}, status=500)
-        
+
+@csrf_exempt      
 def assistant2(request, user_id, thread_id):
       try:
         user_input = request.POST.get('user_input', '')
         print(f"User input: {user_input}")
         document_name = request.POST.get('document_name', None)
         print(f"Document name: {document_name}")
-        assistant = OpenAIAssistant.objects.filter(model="gpt-4o-mini").first()
-        gpt_response = gpt_assistant2.run_assistant2(user_id, thread_id, user_input, assistant=assistant, max_prompt_tokens=20000, debug=True)
+        assistant = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first()
+        gpt_response = gpt_assistant2.run_assistant2(user_id, thread_id, user_input, assistant, document_name, max_prompt_tokens=20000, debug=True)
         return JsonResponse({"message": gpt_response,
                                 "status": "success"}, status=200)
       except Exception as e:
@@ -120,30 +121,26 @@ def upload_document(request, user_id):
             if not request.FILES or 'document' not in request.FILES:
                 print("No files found in the request")
                 return JsonResponse({"error": "No files found", "status": "failure"}, status=400)
-            print(f"Uploading file for user {user_id}")
             document = request.FILES.get('document')
-            document_name = document.name
-            print(f"Document received: {document_name}")
             if not document:
                 print("No document or document name provided")
                 return JsonResponse({"error": "No file found", "status": "failure"}, status=400)
+            print(f"Uploading file for user {user_id}")
+            print(f"Document type: {type(document)}")
+            document_name = document.name
+            print(f"Document received: {document_name}")
             
-            try:
-                print(f"Creating UserFile instance for user {user_id} with filename {document_name}")
-                file_instance = UserFile.objects.create(user_id=user_id, filename=document_name, file=document)
-                print("UserFile instance created successfully")
-                status = 201
-                return JsonResponse({"message": "File uploaded successfully",
-                                  "status": "success",
-                                  "filename": document_name}, status=status)
-            except IntegrityError as e:
-                print(f"File with this name already exists: {e}")
-                file_instance = UserFile.objects.get(user_id=user_id, filename=document_name)
-                file_instance.save()
-                status = 200
-                return JsonResponse({"message": "File uploaded successfully, but a file with this name already exists",
-                                  "status": "success",
-                                  "filename": document_name}, status=status)
+            print(f"Creating UserFile instance for user {user_id} with filename {document_name}")
+            user = User.objects.get(id=user_id)
+            print(f"Document Type:", type(document))
+            file_instance = UserFile.objects.filter(user=user, filename=document_name).first()
+            if not file_instance:
+                file_instance = UserFile.objects.create(user=user, filename=document_name, file=document)
+            file_instance.save()
+            print("UserFile instance created successfully")
+            return JsonResponse({"message": "File uploaded successfully",
+                                "status": "success",
+                                "filename": document_name}, status=201)
         except Exception as e:
             print(f"Error uploading file for user {user_id}: {e}")
             return JsonResponse({"error": str(e), "status": "failure"}, status=500)
@@ -232,14 +229,15 @@ def login_view(request):
                 user_id = user_instance.id
                 threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=True)
                 last_accessed_thread = utils.get_last_accessed_thread(user_instance.id)
-                print("Last Accesed Thread Type:", type(last_accessed_thread))
-                # print(f"User data: {user_data}")
+                last_accessed_file = utils.get_most_recent_userfile(user_instance.id).id
+                print("Last Accessed File ID:", last_accessed_file)
                 return JsonResponse({"message": "Login successful",
                                       "status": "success",
                                       "username": username,
                                       "userId": user_id,
                                       "threads": threads,
-                                      "lastAccessedThread": last_accessed_thread}, status=200)
+                                      "lastAccessedThread": last_accessed_thread,
+                                      "lastAccessedFile" : last_accessed_file}, status=200)
             else:
                 return JsonResponse({"error": "Invalid credentials",
                                       "status": "failure"}, status=401)
@@ -291,14 +289,19 @@ def register_view(request):
         return JsonResponse({"error": "Invalid request method"}, status=400)
     
 @csrf_exempt
-def conversation_view(request, cid):
-    if request.method == "GET":
-        try:
-            print(request)
-            return JsonResponse({"message": "GET request received",
-                                  "status": "success"}, status=200)
-        except Exception as e:
-            return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+def retrieve_userfile(request, file_id):
+    # Retrieve the UserFile object by ID
+    user_file = get_object_or_404(UserFile, id=file_id)
+
+    # Get the file path from the storage backend
+    file_path = user_file.file.path  # This works for local storage; for S3, use user_file.file.open()
+
+    # Return the file as a FileResponse
+    try:
+        response = FileResponse(open(file_path, 'rb'), as_attachment=False, filename=user_file.filename)
+        return response
+    except Exception as e:
+        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
     
     
 class OpenAIThreadListView(APIView):

@@ -81,14 +81,14 @@ export function AuthProvider({ children }) {
     setLoggedIn(true);
   }, [user]);
   
-  const login = (userData) => {
+  function login(userData) {
     console.log("Context - Logging in User: ", userData);
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData)); // Save user data to localStorage
     console.log("Context - User on Load", userData);
   };
   
-  const logout = () => {
+  function logout () {
     setUser(null);
     localStorage.removeItem("user"); // Clear user data from localStorage
     localStorage.removeItem("loginToken"); // Clear user data from localStorage

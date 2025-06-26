@@ -33,5 +33,6 @@ urlpatterns = [
     path('threads/', views.OpenAIThreadListView.as_view(), name='thread-list'),
     path('all-files/', views.AllUserFilesView.as_view(), name='all-user-files'),
     path('file-url/', views.get_file_url, name='get_file_url'),
+    path('api/userfile/<uuid:file_id>/download/', views.retrieve_userfile, name='retrieve_userfile'),
     # path('test/', views.test_view, name='test-view'),
 ]

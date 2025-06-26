@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.files.storage import storages
-import openai,uuid, numpy as np
+from storages.backends.s3boto3 import S3Boto3Storage
+import openai,uuid, numpy as np, os
 
 class Conversation(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations")
@@ -90,15 +91,21 @@ class ThreadMessage(models.Model):
     return f"{self.role} message in thread {self.thread.thread_id} at {self.created_at}"
   
 
+class MediaStorage(S3Boto3Storage):
+  location = ''          # leave empty → store exactly where upload_to returns
+  file_overwrite = False # don’t replace existing files with the same key
+
 def user_file_directory_path(instance, filename):
-  path = f"uploads/user_{instance.user.username}/{filename}"
-  print(f"File Uploaded to Location - {path}")
-  return path
+  filename = os.path.basename(filename)  # keep only the file name
+  path = f'uploads/user_{instance.user.username}/{filename}'
+  print(f'Trying to upload File to Location - {path}')
+  return path                              # relative path inside the bucket
 
 class UserFile(models.Model):
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_files')
   filename = models.CharField(max_length=100)
-  file = models.FileField(storage=storages["s3"], upload_to=user_file_directory_path,max_length=255)
+  file = models.FileField(upload_to=user_file_directory_path,max_length=255)
   last_accessed = models.DateTimeField(auto_now_add=True)
   class Meta:
     constraints = [
@@ -117,7 +124,7 @@ class UserFile(models.Model):
     similiarities = []
     
     for chunk in chunks:
-      sim = chunk.compare_to_user_input(user_input, embedding_model, debug)
+      sim = chunk.compare_to_user_input(user_input, embedding_model)
       similiarities.append((chunk, sim))
     similiarities.sort(key=lambda x: x[1], reverse=True)
 
@@ -135,9 +142,9 @@ class Chunk(models.Model):
   embedding = models.JSONField()
   created_at = models.DateTimeField(auto_now_add=True)
   
-  def compare_to_user_input(self, user_input, embedding_model="text-embedding-3-small", debug=False):
+  def compare_to_user_input(self, user_input, embedding_model="text-embedding-3-small", debug=True):
     if debug:
-      print(f"Comparing chunk {self.id} to user input: {user_input}")
+      print(f"Comparing chunk {self.chunk_number} to user input: {user_input}")
       print(f"Using embedding model: {embedding_model}")
     # Generate embedding for the user input
     user_embedding = openai.embeddings.create(
@@ -150,9 +157,14 @@ class Chunk(models.Model):
     user_embedding = np.array(user_embedding)
     
     similarity = np.dot(chunk_embedding, user_embedding) / (np.linalg.norm(chunk_embedding) * np.linalg.norm(user_embedding))
+    with(open('debug.log', 'a') as f):
+      f.write(f"Chunk Number: {self.chunk_number}\n")
+      f.write(f"Comparing user input \"{user_input}\" - to chunk with text: {self.text[:50]}...\n")
+      f.write(f"Similarity Score: {similarity}\n")
     
     if debug:
+      print("|------------------------------------------------------------------------------------------------|")
       print(f"Comparing user input \"{user_input}\" to chunk number {self.chunk_number} with text: {self.text[:50]}...")
       print(f"Similarity: {similarity}")
-    
+      print("|------------------------------------------------------------------------------------------------|")
     return similarity

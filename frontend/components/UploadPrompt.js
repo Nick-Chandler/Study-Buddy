@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Styles from '../styles/NewWorkspace.module.css'
 import { useAuth } from './AuthProvider';
 
-export default function uploadPrompt({handleFileChange}) {
+export default function uploadPrompt({userFileChange}) {
 
 
   return (
@@ -16,7 +16,7 @@ export default function uploadPrompt({handleFileChange}) {
           type="file"
           accept="application/pdf" // Restrict file selection to PDFs
           style={{ display: 'none' }} // Hide the default file input
-          onChange={handleFileChange} // Handle file selection
+          onChange={userFileChange} // Handle file selection
         />
       </label>
       <p className={Styles.uploadPromptText}>Once uploaded, you can interact with the content of the PDF.</p>

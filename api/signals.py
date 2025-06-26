@@ -8,6 +8,7 @@ from api import utils
 def delete_userfile_file(sender, instance, **kwargs):
   print("Fired post_delete signal for UserFile")
   if instance.file:
+    print(instance.file.name)
     instance.file.delete(save=False)
 
 @receiver(post_save, sender=UserFile)

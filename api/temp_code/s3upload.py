@@ -10,7 +10,7 @@ s3_key = 'uploads/Math_Concepts_Practice_Exam_1.pdf'  # folder/key path in bucke
 
 # Upload the file
 try:
-  s3.upload_file(local_file, bucket_name, s3_key)
+  # s3.upload_file(local_file, bucket_name, s3_key)
   print(f'Successfully uploaded {local_file} to s3://{bucket_name}/{s3_key}')
 except Exception as e:
   print('Upload failed:', e)

@@ -1,0 +1,13 @@
+App States
+- Not Logged In
+- Logged In
+
+
+
+Not Logged In
+- Log in (mandatory)
+
+
+Logged In
+- Setup
+- Main App loop

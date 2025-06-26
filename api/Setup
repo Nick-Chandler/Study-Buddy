@@ -1,0 +1,6 @@
+Setup
+- Authenticate
+- Retrieve Data
+  - Store in User Object - User ID, Threads, Last Document Id 
+- Display Data
+  - 
