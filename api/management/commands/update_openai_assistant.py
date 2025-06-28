@@ -9,7 +9,7 @@ class Command(BaseCommand):
   def handle(self, *args, **kwargs):
 
     try:
-      assistant = api.models.OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first()
+      assistant = api.models.OpenAIAssistant.objects.filter(model="gpt-4o-mini").first()
       assistant_id = assistant.assistant_id
       print(f"Updating assistant with ID: {assistant_id}")
       if not assistant_id:

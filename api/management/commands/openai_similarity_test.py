@@ -7,8 +7,9 @@ class Command(BaseCommand):
 
   def handle(self, *args, **options):
 
-    strings = ["Linear algebra is the branch of mathematics concerning linear equations such as linear maps such as and their representations in vector spaces and through matrices. Linear algebra is central to almost all areas of mathematics.",
-    "In mathematics, specifically in linear algebra, matrix multiplication is a binary operation that produces a matrix from two matrices. For matrix multiplication, the number of columns in the first matrix must be equal to the number of rows in the second matrix. The resulting matrix, known as the matrix product, has the number of rows of the first and the number of columns of the second matrix. The product of matrices A and B is denoted as AB"]
+    s1 = "Lebron James birthplace"
+    s2 = "Akron, Ohio"
+    strings = [s1, s2]
 
     embeddings = [
       openai.embeddings.create(

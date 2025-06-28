@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.core.files.storage import storages
 from storages.backends.s3boto3 import S3Boto3Storage
 import openai,uuid, numpy as np, os
+from PyPDF2 import PdfReader
 
 class Conversation(models.Model):
   user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations")
@@ -111,6 +112,28 @@ class UserFile(models.Model):
     constraints = [
       models.UniqueConstraint(fields=['user', 'filename'], name='unique_filename_per_user')
     ]
+
+  def extract_text(self):
+    """
+    Extracts all text from the PDF file associated with this UserFile.
+    Returns:
+      str: The extracted text from the PDF.
+    """
+    if not self.file or not self.file.name.endswith('.pdf'):
+      raise ValueError("The file is not a valid PDF.")
+
+    try:
+      # Open the file and read its content
+      with self.file.open('rb') as pdf_file:
+        reader = PdfReader(pdf_file)
+        text = ""
+        for page in reader.pages:
+          text += page.extract_text()  # Extract text from each page
+        return text
+    except Exception as e:
+      print(f"Error extracting text from PDF: {e}")
+      return ""
+
   def chunk_similarity_scores(self, user_input, embedding_model="text-embedding-3-small", debug=False):
     chunks = self.chunks.all().order_by('chunk_number')
     if debug:

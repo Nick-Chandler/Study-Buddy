@@ -104,7 +104,8 @@ export function AuthProvider({ children }) {
     )
       return;
     console.log("Get User Threads - threads:", user.threads);
-    setActiveThread(user.threads[0]?.threadId || 0); // Set active thread to first thread or 0 if none
+    console.log("AuthProvider - Setting Active Thread to ", user.threads[0]?.threadId || 0);
+    setActiveThread(user.threads[0]?.threadId || ""); // Set active thread to first thread or 0 if none
   }
   function addMessage(msg, role) {
     console.log("Context - Adding Message: ", msg);

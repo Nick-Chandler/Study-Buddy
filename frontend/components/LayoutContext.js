@@ -10,6 +10,10 @@ export function LayoutProvider({ children }) {
   const [documentName, setDocumentName] = useState(null);
   const { user, activeThread } = useAuth();
 
+  useEffect(() => {
+    console.log("LayoutProvider - Active Thread Changed to: ", activeThread);
+  }, [activeThread])
+
     async function uploadFile() {
       if (!document) {
         console.log("No document to upload");
@@ -49,6 +53,8 @@ export function LayoutProvider({ children }) {
   async function getAiResponse(user_id, user_input, fileArray) {
     console.log("getAiResponse called with user_input: ", user_input);
     console.log("getAiResponse called with fileArray: ", fileArray);
+    console.log("getAiResponse - User ID: ", user_id);
+    console.log("getAiResponse - Active Thread: ", activeThread);
     const url = `http://localhost:8000/assistant/${user_id}/${activeThread}`
     console.log("Context - Active Thread: ", activeThread)
     console.log("getAiResponse - Document Name: ", documentName)

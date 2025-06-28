@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, OpenAIThreadSerializer, UserFileSerializer
 from api.models import OpenAIAssistant, OpenAIThread, ThreadMessage, UserFile
-from api import gpt_assistant, gpt_assistant2, utils
+from api import gpt_assistant, gpt_assistant2, gpt_assistant3, utils
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError
 import openai
@@ -19,18 +19,18 @@ def assistant(request, user_id, thread_id):
     if request.method == 'POST':
       print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
       user_input = request.POST.get('user_input', '')
-      file_array = request.FILES.getlist('files')
-      document = request.FILES.getlist('document')
+      document_name = request.POST.get('document_name', None)
+      print("Document Provided:", document_name)
+      document = UserFile.objects.filter(user_id=user_id, filename=document_name).first() if document_name else None
 
       print(f"User input: {user_input}")
-      print(f"Files received: {len(file_array)} files")
       thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
       thread.save()
       human_message = ThreadMessage.objects.create(thread=thread, role="human", content=user_input)
       try:
           assistant_id = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first().assistant_id
           print("Calling assistant function...")
-          gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, file_array, document, assistant_id=assistant_id)
+          gpt_response = gpt_assistant.run_assistant(user_id, thread_id, user_input, user_file=document, assistant_id=assistant_id)
           ai_message = ThreadMessage.objects.create(thread=thread, role="ai", content=gpt_response)
           print(f"GPT Response: {gpt_response}")
           current_document = utils.get_most_recent_userfile(user_id)
@@ -48,12 +48,28 @@ def assistant2(request, user_id, thread_id):
         document_name = request.POST.get('document_name', None)
         print(f"Document name: {document_name}")
         assistant = OpenAIAssistant.objects.filter(model="gpt-4.1-mini").first()
-        gpt_response = gpt_assistant2.run_assistant2(user_id, thread_id, user_input, assistant, document_name, max_prompt_tokens=20000, debug=True)
+        gpt_response = gpt_assistant2.run_assistant(user_id, thread_id, user_input, assistant, document_name, max_prompt_tokens=20000, debug=True)
         return JsonResponse({"message": gpt_response,
                                 "status": "success"}, status=200)
       except Exception as e:
         print(f"Error in assistant_2: {e}")
         return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+      
+@csrf_exempt      
+def assistant3(request, user_id, thread_id):
+    try:
+        user_input = request.POST.get('user_input', '')
+        print(f"User input: {user_input}")
+        document_name = request.POST.get('document_name', None)
+        user_file = UserFile.objects.filter(user_id=user_id, filename=document_name).first() if document_name else None
+        print(f"Document name: {document_name}")
+        gpt_response = gpt_assistant3.run_assistant(user_id, thread_id, user_input, user_file, max_prompt_tokens=20000)
+        return JsonResponse({"message": gpt_response,
+                                "status": "success"}, status=200)
+    except Exception as e:
+        print(f"Error in assistant_2: {e}")
+        return JsonResponse({"error": str(e), "status": "failure"}, status=500)
+
 
 
     
@@ -92,7 +108,7 @@ def get_user_thread_messages(request, user_id, thread_id):
                 thread_messages.insert(0,{
                     'id': message.id,
                     'role': message.role,
-                    'text': text
+                    'text': text.split("---context---", 1)[0].strip() if "---context---" in text else text.strip(),
                 })
                 # print(f"Message {index} added: {thread_messages[-1]}")
             has_next_page = messages.has_more

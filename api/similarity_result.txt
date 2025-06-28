@@ -65,3 +65,14 @@ Cosine similarity between 'LeBron James is widely regarded as one of the greates
 Cosine similarity between 'The Eiffel Tower is located in Paris, France and is one of the most famous landmarks in the world.' and 'The Eiffel Tower, one of the world’s most iconic landmarks, can be found in Paris, France.' is: 0.8697672238157942
 Cosine similarity between 'Linear algebra is the branch of mathematics concerning linear equations such as linear maps such as and their representations in vector spaces and through matrices. Linear algebra is central to almost all areas of mathematics.' and 'the number of rows in the second matrix. The resulting matrix, known as the matrix product, has the number of rows of the first and the number of columns of the second matrix. The product of matrices A and B is denoted as AB' is: 0.23628431271555744
 Cosine similarity between 'Linear algebra is the branch of mathematics concerning linear equations such as linear maps such as and their representations in vector spaces and through matrices. Linear algebra is central to almost all areas of mathematics.' and 'In mathematics, specifically in linear algebra, matrix multiplication is a binary operation that produces a matrix from two matrices. For matrix multiplication, the number of columns in the first matrix must be equal to the number of rows in the second matrix. The resulting matrix, known as the matrix product, has the number of rows of the first and the number of columns of the second matrix. The product of matrices A and B is denoted as AB' is: 0.4125019482950512
+Cosine similarity between 'NBA' and 'Basketball' is: 0.7009614210977669
+Cosine similarity between 'NBA Basketball' and 'Basketball' is: 0.7622547410784692
+Cosine similarity between 'Lebron James' and 'Basketball' is: 0.45764184590789875
+Cosine similarity between 'Lebron James' and 'Baseball' is: 0.31893511259016866
+Cosine similarity between 'Lebron James' and 'Ceiling Fan' is: 0.23541012874328204
+Cosine similarity between 'Window' and 'Ceiling Fan' is: 0.3097811290975628
+Cosine similarity between 'Lebron James' and 'Cleveland' is: 0.38008636820807185
+Cosine similarity between 'Lebron James' and 'Cleveland Cavaliers' is: 0.588053683453221
+Cosine similarity between 'Lebron James' and 'Akron, Ohio' is: 0.28468365734047585
+Cosine similarity between 'Lebron James' and 'Akron, Ohio' is: 0.24331442524923946
+Cosine similarity between 'Lebron James birthplace' and 'Akron, Ohio' is: 0.4474253140590408

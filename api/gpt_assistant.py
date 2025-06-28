@@ -7,7 +7,7 @@ from PIL import Image
 import io
 
 
-def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assistant_id = "asst_ceOd9c6y55I9vToqnkJKUnj7", max_prompt_tokens=20000):
+def run_assistant(user_id, thread_id, user_input, files=[], user_file=None, assistant_id = "asst_ceOd9c6y55I9vToqnkJKUnj7", max_prompt_tokens=20000):
 
   print("Starting run_assistant routine...")
   assistant = OpenAIAssistant.objects.get(assistant_id=assistant_id)
@@ -18,23 +18,25 @@ def run_assistant(user_id, thread_id, user_input, files=[], documents=[], assist
     print("Thread not found, creating new thread...")
     utils.create_new_thread_for_user(user_id)
   print("User Input:", user_input)
-  print("Documents Provided:", len(documents))
-  if documents:
-    [print("Document:", doc.name) for doc in documents]
-  
-  print("Files Provided:", len(files))
+  print("Document Provided:", user_file.filename if user_file else "No document provided")
+  if user_file:
+    print(user_file.filename)
+
   if files:
+    print("Files Provided:", len(files))
     [print(f"File Provided: {f.name}") for f in files]
 
-  attachments = prepare_openai_attachments(documents)
   content = prepare_openai_content(user_input, files)
+  if user_file:
+    kwargs = prepare_openai_attachments(user_file)
 
-  kwargs = {}
-  if attachments:
-    print("Attachments: ", attachments)
-    kwargs["attachments"] = attachments
 
   print("Creating OpenAI message...")
+  print("Thread ID:", thread_id)
+  print("Role: user")
+  if content:
+    print("Content:", content)
+  print("Attachment:", kwargs['attachments'] if 'attachments' in kwargs else "No attachments")
   try:
     response = openai.beta.threads.messages.create(
       thread_id=thread_id,
@@ -117,32 +119,30 @@ def prepare_openai_content(user_input, img_files):
   return content
 
 
-def prepare_openai_attachments(documents):
+def prepare_openai_attachments(user_file):
   print("Preparing OpenAI attachments...")
-  attachments = []
+  kwargs = {}
 
-  # All cases
-  # # Create File (if applicable)
-  for f in documents:
-    print("Processing OpenAI document file for filename:", f.name, "...")
-    try:
-      print("Creating OpenAI document file for:", f.name)
-      openai_file = openai.files.create(
-      file=(f.name, f.read()),
+  # Create File (if applicable)
+  print("Processing OpenAI document file for filename:", user_file.filename, "...")
+  try:
+    print("Creating OpenAI document file for:", user_file.filename)
+    openai_file = openai.files.create(
+      file=(user_file.filename, user_file.file.read()),
       purpose="assistants"
-      )
-    except Exception as e:
-      print("Error creating OpenAI file:", e)
-      raise ValueError(f"Error creating OpenAI file: {e}. Please check your input and try again.")
-    wait_for_file_processed(openai_file.id)
-    print("Creating Attachment for file:", f.name)
-    new_attachment = {
-      "file_id": openai_file.id,
-      "tools": [{"type": "file_search"}],
-    }
-    attachments.append(new_attachment)
-    print("Attachments so far:", attachments)
-  return attachments
+    )
+  except Exception as e:
+    print("Error creating OpenAI file:", e)
+    raise ValueError(f"Error creating OpenAI file: {e}. Please check your input and try again.")
+  wait_for_file_processed(openai_file.id)
+  print("Creating Attachment for file:", user_file.filename)
+  new_attachment = {
+    "file_id": openai_file.id,
+    "tools": [{"type": "file_search"}],
+  }
+  print("Attachment: ", new_attachment)
+  kwargs["attachments"] = [new_attachment]
+  return kwargs
 
 def wait_for_file_processed(file_id, timeout=30, poll_interval=.5):
   """

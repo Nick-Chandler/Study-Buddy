@@ -7,14 +7,6 @@ export default function NewThread() {
   const { user, threads, setActiveThread, setThreads, setActiveMessages} = useAuth()
 
 
-  useEffect(() => {
-    console.log("NewThread - Threads: ", threads);
-    if(!threads) {
-      console.log("NewThread - No threads found, setting active thread to empty string");
-    }
-    setActiveThread(threads[0]?.threadId || "");
-  }, [threads]);
-
 
   async function handleNewThread() {
     // Ask for a new thread name
