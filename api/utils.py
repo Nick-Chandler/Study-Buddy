@@ -211,3 +211,12 @@ def get_most_recent_userfile(user_id):
     except Exception as e:
         print(f"An error occurred while fetching the most recent UserFile: {e}")
         return None
+def return_middle_substring(s, before, after):
+  start = s.find(before)
+  if start == -1:
+    return None
+  start += len(before)
+  end = s.find(after, start)
+  if end == -1:
+    return None
+  return s[start:end].strip()

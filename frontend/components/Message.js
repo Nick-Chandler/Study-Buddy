@@ -8,6 +8,7 @@ import Styles from '../styles/NewAssistant.module.css'
 
 // Added function to style citations
 function styleCitations(text) {
+  if(!text) return text; // Return if text is empty or undefined
   // return text.replace(/【[\d:†a-zA-Z_.-]+】/g, '<span class="citation">$&</span>');
   return text.replace(/【[\d:†a-zA-Z_.-]+】/g, '');
 }

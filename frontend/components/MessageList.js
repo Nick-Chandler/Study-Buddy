@@ -18,6 +18,7 @@ export default function MessageList(props) {
   }, [activeMessages]);
 
   function autoMathFormat(text) {
+    if(!text) return text;
   // Convert \(...\) to $...$
   text = text.replace(/\\\((.+?)\\\)/g, (match, p1) => `$${p1.trim()}$`);
   // Convert \[...\] to $$...$$

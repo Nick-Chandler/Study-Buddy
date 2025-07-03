@@ -13,7 +13,7 @@ export default function NewThread() {
     const threadName = prompt("Enter a name for the new thread: ");
     if(!threadName) 
       return
-    const userId = user.user.id
+    const userId = user.userId
     // Make a POST request to create a new thread with the chosen name or default name
     let newThreadId =  await requestNewThread(userId, threadName || "Untitled Thread")
     // setActiveThread to the new thread ID
@@ -21,6 +21,7 @@ export default function NewThread() {
       { name: threadName, threadId: newThreadId }
       , ...threads,
     ]);
+    setActiveThread(newThreadId);
     setActiveMessages([]); // Clear active messages when threads change
   }
 

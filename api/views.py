@@ -1,4 +1,4 @@
-import os, json, uuid
+import os, json, uuid, openai
 from django.http import FileResponse, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import csrf_exempt
@@ -9,8 +9,6 @@ from .serializers import UserSerializer, OpenAIThreadSerializer, UserFileSeriali
 from api.models import OpenAIAssistant, OpenAIThread, ThreadMessage, UserFile
 from api import gpt_assistant, gpt_assistant2, gpt_assistant3, utils
 from django.shortcuts import get_object_or_404
-from django.db import IntegrityError
-import openai
 
     
 @csrf_exempt
@@ -76,7 +74,8 @@ def assistant3(request, user_id, thread_id):
 def get_user_thread_list(request, user_id):
     print(f"Fetching thread list for user {user_id}")
     try:
-      user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=False)
+      user_threads = OpenAIThread.get_threads_for_user(user_id, name_list=True, print_threads=True)
+      print(user_threads)
     except Exception as e:
       print(f"Error fetching threads for user {user_id}: {e}")
       return JsonResponse({"error": str(e), "status": "failure"}, status=500)
@@ -84,45 +83,16 @@ def get_user_thread_list(request, user_id):
 
 def get_user_thread_messages(request, user_id, thread_id):
     print(f"Fetching messages for user - {user_id}: | thread index - {thread_id}")
-    if not thread_id:
-      print(f"Thread id {thread_id} not found for user: {user_id}")
-      return JsonResponse({"error": "Thread not found", "status": "failure"}, status=404)
     
     print(f"Calling fetch_thread_messages with thread ID: {thread_id}")
-    # thread = OpenAIThread.objects.get(thread_id=thread_id)
-    # thread_msgs = thread.get_messages_for_thread(print_messages=False)
-    # thread_msgs = ThreadMessage.objects.filter(thread__thread_id=thread_id).order_by('created_at')
-    client = openai.OpenAI()
-    thread_messages = []
     try:
-        messages = client.beta.threads.messages.list(thread_id=thread_id)
-        thread_messages = []
-        has_next_page = True
-        while has_next_page:
-            for index, message in enumerate(messages.data):
-                # print(f"Message {index}: {message}")
-                text = next(
-                (part.text.value for part in message.content if part.type == "text"),
-                ""  # default to empty string if no text part
-                )
-                thread_messages.insert(0,{
-                    'id': message.id,
-                    'role': message.role,
-                    'text': text.split("---context---", 1)[0].strip() if "---context---" in text else text.strip(),
-                })
-                # print(f"Message {index} added: {thread_messages[-1]}")
-            has_next_page = messages.has_more
-            # print(f"Has next page: {has_next_page}")
-            if has_next_page:
-                print(f"Fetching next page of messages for thread {thread_id}")
-                messages = client.beta.threads.messages.list(thread_id=thread_id, after=messages.data[-1].id)
+        thread = OpenAIThread.objects.get(thread_id=thread_id, user_id=user_id)
+        thread_messages = thread.fetch_thread_messages(print_messages=True)
         print(f"Fetched {len(thread_messages)} messages for thread {thread_id}")
-        # for msg in thread_messages:
-        #     print("Text:", msg['text'], "Role:", msg['role'],"Message ID:", msg['id'])
+
     except Exception as e:
         print(f"Error fetching messages for thread {thread_id}: {e}") 
-        return JsonResponse({"error": "Failed to fetch messages", "status": "failure"}, status=500)
-    print(f"Total messages fetched: {len(thread_messages)}")
+        return JsonResponse([],safe=False, status=500)
     # for msg in thread_messages:
     #     print("Message ID:", msg['id'], "Role:", msg['role'], "Text:", msg['text'])
     return JsonResponse(thread_messages, safe=False)

@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [activeMessages, setActiveMessages] = useState([]);
   const [threads, setThreads] = useState([]);
-  const [activeThread, setActiveThread] = useState(user.threads?.[0].threadId || 0); // Initialize activeThread to first thread or 0 if none
+  const [activeThread, setActiveThread] = useState(threads.length > 0 ? threads[0].threadId : 0); // Initialize activeThread to first thread or 0 if none
   const router = useRouter();
 
   console.log("AuthProvider - States Generated");
@@ -77,7 +77,6 @@ export function AuthProvider({ children }) {
     createLoginToken(user);
     if (!user || user === null || user === undefined) return;
     console.log("Context - Setting Threads for User", user);
-    getUserThreads(user?.userId || []);
     setLoggedIn(true);
   }, [user]);
   
@@ -95,18 +94,7 @@ export function AuthProvider({ children }) {
     router.reload();
   };
   
-  async function getUserThreads(userId) {
-    console.log("Get User Threads - User:", user)
-    if (
-      !userId ||
-      userId === null ||
-      userId === undefined
-    )
-      return;
-    console.log("Get User Threads - threads:", user.threads);
-    console.log("AuthProvider - Setting Active Thread to ", user.threads[0]?.threadId || 0);
-    setActiveThread(user.threads[0]?.threadId || ""); // Set active thread to first thread or 0 if none
-  }
+  
   function addMessage(msg, role) {
     console.log("Context - Adding Message: ", msg);
     let temp_msg = {
@@ -133,7 +121,6 @@ export function AuthProvider({ children }) {
         addMessage,
         login,
         logout,
-        getUserThreads,
         validateLoginToken,
         setThreads,
       }}
