@@ -64,7 +64,7 @@ def get_latest_gpt_response(run, thread_id, print_all_messages: bool = False):
     if msg.role == "assistant":
       for block in msg.content:      
         if block.type == "text":
-          # print("Assistant response:", block.text.value)
+          print("Assistant response:", block.text.value)
           return block.text.value
   return None
 

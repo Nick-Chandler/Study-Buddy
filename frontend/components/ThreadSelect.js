@@ -25,8 +25,8 @@ export default function ThreadSelect() {
       user.userId === undefined
     )
       return;
+    const url = `http://localhost:8000/get_user_thread_list/${userId}`;
     console.log("Get User Threads - Threads URL: ", url);
-    const url = `http://localhost:8000/get_user_thread_list/${userId}/`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -47,7 +47,13 @@ export default function ThreadSelect() {
     console.log("ThreadSelect - Rendered");
     console.log("ThreadSelect - User Threads: ", threads);
     console.log("ThreadSelect - Active Thread: ", activeThread);
+    getUserThreads(user.userId);
   }, []);
+
+  useEffect(() => {
+    console.log("ThreadSelect - Threads Changed: ", threads);
+    console.log("ThreadSelect - Active Thread: ", activeThread);
+  },[threads])
 
 
 
