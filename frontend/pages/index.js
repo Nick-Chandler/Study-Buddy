@@ -1,14 +1,11 @@
-import Assistant from '../components/Assistant';
-import Customizations from '../components/Customizations';
-import Workspace from '../components/Workspace';
 import Navbar from '../components/Navbar';
 import DefaultLayout from '../components/DefaultLayout';
 import ReferenceLayout from '../components/ReferenceLayout';
 import CSLayout from '../components/CSLayout';
-import { AuthProvider } from '../components/AuthProvider';
 import { useAuth } from '../components/AuthProvider';
 import { useEffect } from 'react';
 import { useLayout } from '../components/LayoutContext';
+import SideThreadSelect from '../components/SideThreadSelect';
 
 
 export default function index() {
@@ -33,7 +30,10 @@ export default function index() {
   return (
     <div className='homepage'>
       <Navbar />
-      {componentMap[currentLayout] || <DefaultLayout />}
+      <main className='content'>
+        {componentMap[currentLayout] || <DefaultLayout />}
+        <SideThreadSelect />
+      </main>
     </div>
   );
 }

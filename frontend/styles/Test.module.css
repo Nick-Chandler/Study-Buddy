@@ -1,0 +1,27 @@
+.SideThreadSelect {
+  border: 1px solid gray;
+  position: absolute;
+  right: 0;
+  width: 10rem;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.SideThreadToggleBtn {
+  width: 2rem;
+  height: 1rem;
+}
+
+.SideThreadList {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.SideThreadListItem {
+  list-style: none;
+  padding: 0.5rem;
+  border-bottom: 1px solid gray;
+  flex:1;
+}

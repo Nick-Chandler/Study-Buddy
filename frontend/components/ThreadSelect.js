@@ -53,6 +53,7 @@ export default function ThreadSelect() {
   useEffect(() => {
     console.log("ThreadSelect - Threads Changed: ", threads);
     console.log("ThreadSelect - Active Thread: ", activeThread);
+    setActiveThread(threads[0]?.threadId || ""); // Set the first thread as active if available
   },[threads])
 
 

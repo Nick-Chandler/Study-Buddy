@@ -1,23 +1,10 @@
 from django.contrib.auth.models import User
 # from langchain_openai import ChatOpenAI
-from api.models import User, Conversation, OpenAIAssistant, OpenAIThread, UserFile
+from api.models import User, OpenAIAssistant, OpenAIThread, UserFile
 from api.serializers import OpenAIThreadSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from PyPDF2 import PdfReader, PdfWriter
 import openai, time, io, fitz
-
-def get_user_threads(user_id):
-  try:
-    # Fetch all conversations for the given user ID
-    conversations = Conversation.objects.filter(user_id=user_id)
-    
-    # Serialize the conversations
-    serializer = OpenAIThreadSerializer(conversations, many=True)
-    
-    # Return the serialized data as a JSON response
-    return {"status": "success", "data": serializer.data}
-  except Exception as e:
-    return {"status": "failure", "error": str(e)}
   
 
 def get_latest_gpt_response(run, thread_id, print_all_messages: bool = False):

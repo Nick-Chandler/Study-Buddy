@@ -76,3 +76,42 @@ Cosine similarity between 'Lebron James' and 'Cleveland Cavaliers' is: 0.5880536
 Cosine similarity between 'Lebron James' and 'Akron, Ohio' is: 0.28468365734047585
 Cosine similarity between 'Lebron James' and 'Akron, Ohio' is: 0.24331442524923946
 Cosine similarity between 'Lebron James birthplace' and 'Akron, Ohio' is: 0.4474253140590408
+Cosine similarity between 'Rory McIlroy's third-round charge at the Open Championship was derailed in bizarre fashion Saturday when he unwittingly performed a trick shot at the 11th hole.
+
+          With one swish of his club, McIlroy not only hit his designated ball out of the rough to the right of the fairway but also dug out another ball that had been buried underneath the turf.
+
+          The second ball popped out of the ground, much to McIlroy's surprise. He picked it up and held it out in front of him, looking confused. "I have another golf ball," he said with a smile to those around him.
+
+          McIlroy then laughed it off and tossed the mystery ball into a nearby bush. NBC Sports commentator and former caddie John Wood said a stunned McIlroy asked him if he had ever seen anything like it.
+
+          His shot wound up being a poor one, not even reaching the green, and he couldn't get up and down for par. The bogey -- the first of his round -- dropped him to 2 under for the day and 5 under for the tournament at Royal Portrush.
+
+          He rebounded from the bizarre moment with an eagle at No. 12 that drew a roar from the crowd.
+
+          McIlroy birdied three of his first four holes then settled for all pars until the surprising moment on the 11th.' and 'Rory McIlroy' is: 0.5493321544605999
+Cosine similarity between 'Rory McIlroy's third-round charge at the Open Championship was derailed in bizarre fashion Saturday when he unwittingly performed a trick shot at the 11th hole.
+
+          With one swish of his club, McIlroy not only hit his designated ball out of the rough to the right of the fairway but also dug out another ball that had been buried underneath the turf.
+
+          The second ball popped out of the ground, much to McIlroy's surprise. He picked it up and held it out in front of him, looking confused. "I have another golf ball," he said with a smile to those around him.
+
+          McIlroy then laughed it off and tossed the mystery ball into a nearby bush. NBC Sports commentator and former caddie John Wood said a stunned McIlroy asked him if he had ever seen anything like it.
+
+          His shot wound up being a poor one, not even reaching the green, and he couldn't get up and down for par. The bogey -- the first of his round -- dropped him to 2 under for the day and 5 under for the tournament at Royal Portrush.
+
+          He rebounded from the bizarre moment with an eagle at No. 12 that drew a roar from the crowd.
+
+          McIlroy birdied three of his first four holes then settled for all pars until the surprising moment on the 11th.' and 'Rory McIlroy, Open Championship' is: 0.6113905520816563
+Cosine similarity between 'Rory McIlroy's third-round charge at the Open Championship was derailed in bizarre fashion Saturday when he unwittingly performed a trick shot at the 11th hole.
+
+          With one swish of his club, McIlroy not only hit his designated ball out of the rough to the right of the fairway but also dug out another ball that had been buried underneath the turf.
+
+          The second ball popped out of the ground, much to McIlroy's surprise. He picked it up and held it out in front of him, looking confused. "I have another golf ball," he said with a smile to those around him.
+
+          McIlroy then laughed it off and tossed the mystery ball into a nearby bush. NBC Sports commentator and former caddie John Wood said a stunned McIlroy asked him if he had ever seen anything like it.
+
+          His shot wound up being a poor one, not even reaching the green, and he couldn't get up and down for par. The bogey -- the first of his round -- dropped him to 2 under for the day and 5 under for the tournament at Royal Portrush.
+
+          He rebounded from the bizarre moment with an eagle at No. 12 that drew a roar from the crowd.
+
+          McIlroy birdied three of his first four holes then settled for all pars until the surprising moment on the 11th.' and 'Rory McIlroy's bad shot at the Open Championship' is: 0.7205302639826302

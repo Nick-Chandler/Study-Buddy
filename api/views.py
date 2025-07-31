@@ -13,7 +13,6 @@ from django.shortcuts import get_object_or_404
     
 @csrf_exempt
 def assistant(request, user_id, thread_id):
-
     if request.method == 'POST':
       print(f"Calling Assistant for User ID: {user_id}, Thread Id: {thread_id}")
       user_input = request.POST.get('user_input', '')

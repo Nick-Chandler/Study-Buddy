@@ -13,14 +13,9 @@ html, body {
     font-family: 'Inter', sans-serif;
     line-height: 1.6;
     background-color: #161616;
-    overflow: hidden;
+    overflow: auto;
     color: white;
 }
-
-.homepage {
-    height: 100%;
-}
-
 h1, h2, h3, h4, h5, h6 {
     margin: 0;
     padding: 0;
@@ -36,34 +31,7 @@ ul {
     padding: 0;
 }
 
-/* main { */
-    /* height: 90vh; fixed portion of screen height */
-    /* width: 90vw;  fixed portion of screen width */
-    /* display: flex; */
-    /* margin: auto; */
-    /* border: 1px solid black; */
-    /* gap: 2rem; */
-    /* border-radius: 20px; */
-    /* align-items: center; */
-  /* } */
-  
 
-/* main section { */
-    /* width: 30%;  adjust as needed */
-    /* height: 100%; */
-    /* flex-grow: 0; */
-    /* flex-shrink: 0; */
-    /* border-radius: 10px; */
-    /* border: 1px solid black; */
-    /* padding: 1rem; */
-    /* display: flex; */
-    /* flex-direction: column; */
-  /* } */
-
-
-/* section h1 {
-    margin: 0 auto;
-} */
 button {
     cursor: pointer;
     /* background-color: #6366f1; */
@@ -80,3 +48,16 @@ button {
     background-color: #161616;
     color: #ffffff;
 }   
+
+.homepage {
+    height: 100%;
+    padding: .5rem;
+    background-color: #ffffff;
+}
+
+.content {
+    padding: 1rem;
+    height: 100%;
+    background-color: #f2f2f2;
+    display: flex;;
+}

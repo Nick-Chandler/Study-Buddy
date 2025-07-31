@@ -88,9 +88,9 @@ export default function AssistantInput({ scrollToBottom }) {
           onChange={(e) => setInput(e.target.value)} // Update state on input change
         />
         <input type="file" id="fileUpload" name="fileUpload" style={{ display: 'none' }}  onChange={handleFileUpload}/>
-        <label htmlFor="fileUpload" className={Styles.fileUploadLabel}>
+        {/* <label htmlFor="fileUpload" className={Styles.fileUploadLabel}>
           <FontAwesomeIcon icon={faArrowUpFromBracket} />
-        </label>
+        </label> */}
       </div>
     </form>
   );
